@@ -1,10 +1,8 @@
 from dash import dcc
 from plotly.subplots import make_subplots
-from pyconfig import appConfig
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import pytemplate
 import pandas as pd
 from collections import defaultdict, OrderedDict
 from itertools import cycle, islice
@@ -15,10 +13,9 @@ THRESHOLD_XAXES = 12 * 2 * 5
 THRESHOLD_STATIONS = 8
 
 
-def _generate_dict_watermark(n: int = 1, source=appConfig.TEMPLATE.WATERMARK_SOURCE):
+def _generate_dict_watermark(n: int = 1):
     n = "" if n == 1 else n
     return dict(
-        source=source,
         xref=f"x{n} domain",
         yref=f"y{n} domain",
         x=0.5,
@@ -193,12 +190,10 @@ def figure_summary_maxsum(
     UPDATE_XAXES = {
         "ticktext": xticktext,
         "tickvals": xtickvals,
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.2"),
         "gridwidth": 2,
     }
 
     UPDATE_YAXES = {
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.2"),
         "gridwidth": 2,
         "fixedrange": True,
         "title": "<b>Rainfall (mm)</b>",
@@ -216,15 +211,6 @@ def figure_summary_maxsum(
 
     n_data = len(fig.data)
     n_split = n_data // 2
-
-    if n_split < len(pytemplate.hktemplate.layout.colorway):
-        colors = list(pytemplate.hktemplate.layout.colorway[:n_split])
-    else:
-        colorway_list = pytemplate.hktemplate.layout.colorway
-        colors = list(islice(cycle(colorway_list), n_split))
-
-    for data, color in zip(fig.data, colors * 2):
-        data.marker.color = color
 
     return dcc.Graph(figure=fig)
 
@@ -336,14 +322,12 @@ def figure_summary_raindry(
     UPDATE_XAXES = {
         "ticktext": xticktext,
         "tickvals": xtickvals,
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.1"),
         "gridwidth": 2,
         # "nticks": 2,
         "ticklabelstep": 2,
     }
 
     UPDATE_YAXES = {
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.1"),
         "gridwidth": 2,
         "fixedrange": True,
         "title": "<b>Days</b>",
@@ -359,11 +343,6 @@ def figure_summary_raindry(
     for n_row in range(1, rows + 1):
         for axis, update in zip(["x", "y"], [UPDATE_XAXES, UPDATE_YAXES]):
             update_axis(fig, update, n_row, axis)
-
-    color_list = list(pytemplate.hktemplate.layout.colorway[:2]) + ["DarkGray"]
-
-    for data, color in zip(fig.data, color_list * rows):
-        data.marker.color = color
 
     return dcc.Graph(figure=fig)
 
@@ -462,7 +441,6 @@ def figure_summary_maxdate(
 
     # GENERAL UPDATE
     UPDATE_XAXES = {
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.1"),
         "gridwidth": 2,
         "showspikes": True,
         "spikesnap": "cursor",
@@ -470,7 +448,6 @@ def figure_summary_maxdate(
         "spikethickness": 1,
     }
     UPDATE_YAXES = {
-        "gridcolor": pytemplate._FONT_COLOR_RGB_ALPHA.replace("0.4", "0.1"),
         "gridwidth": 2,
         "fixedrange": True,
         "title": "<b>Station</b>",
@@ -482,15 +459,6 @@ def figure_summary_maxdate(
 
     n_data = len(fig.data)
     n_split = n_data // 3
-
-    if n_split < len(pytemplate.hktemplate.layout.colorway):
-        colors = list(pytemplate.hktemplate.layout.colorway[:n_split])
-    else:
-        colorway_list = pytemplate.hktemplate.layout.colorway
-        colors = list(islice(cycle(colorway_list), n_split))
-
-    for data, color in zip(fig.data, colors * 3):
-        data.marker.color = color
 
     return dcc.Graph(figure=fig)
 
@@ -507,7 +475,6 @@ def figure_cumsum_single(cumsum: pd.DataFrame, col: str = None) -> go.Figure:
         x=new_dataframe.number,
         y=new_dataframe[col],
         trendline="ols",
-        trendline_color_override=pytemplate.hktemplate.layout.colorway[1],
     )
 
     # MODIFIED SCATTER
@@ -570,7 +537,6 @@ def figure_consistency(cumsum: pd.DataFrame, col: str) -> go.Figure:
         x=cumsum_x,
         y=cumsum_y,
         trendline="ols",
-        trendline_color_override=pytemplate.hktemplate.layout.colorway[1],
     )
 
     # MODIFIED SCATTER

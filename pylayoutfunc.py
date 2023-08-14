@@ -1,9 +1,7 @@
 from __future__ import annotations
 from dash import html, dash_table, dcc
 import dash_bootstrap_components as dbc
-from pytemplate import hktemplate
 from datetime import datetime
-from pyconfig import appConfig
 
 
 def create_table_layout(
@@ -44,7 +42,6 @@ def create_table_layout(
         filter_action="native",
         sort_action="native",
         style_table={"overflowX": "auto"},
-        style_cell={"font-family": hktemplate.layout.font.family},
         style_header={"font-size": 20, "textAlign": "center", "font-weight": "bold"},
     )
     add_title = (
@@ -83,7 +80,6 @@ def create_table_summary(
         filter_action="none",
         sort_action="native",
         style_table={"overflowX": "auto"},
-        style_cell={"font-family": hktemplate.layout.font.family},
         style_header={"font-size": 20, "textAlign": "center", "font-weight": "bold"},
         merge_duplicate_headers=True,
     )
@@ -138,13 +134,3 @@ def create_tabcard_graph_layout(
     active_tab = tab_names[0] if active_tab is None else active_tab
 
     return dbc.Tabs(tab, active_tab=active_tab)
-
-
-def create_HTML_alert(alert: dbc.Alert, className: str = "my-2"):
-    return html.Div(
-        dbc.Container(
-            dbc.Row([dbc.Col(alert, width="auto")], justify="center"),
-            fluid=True,
-        ),
-        className=className,
-    )
