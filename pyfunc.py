@@ -19,7 +19,7 @@ def parse_upload_data(content, filename, filedate):
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
 
             dataframe = pd.read_excel(
-                decoded, index_col=0, header=1, parse_dates=True,
+                decoded, index_col=0, header=1, parse_dates=[[0, 1]],
             )
         else:
             return (
@@ -39,48 +39,14 @@ def parse_upload_data(content, filename, filedate):
 def transform_to_dataframe(
     table_data,
     table_columns,
-    multiindex: bool = False,
-    apply_numeric: bool = True,
-    parse_dates: list = None,
 ):
 
-    if multiindex is True:
-        dataframe = pd.DataFrame(table_data)
-        dataframe.columns = pd.MultiIndex.from_tuples(
-            [item["name"] for item in table_columns]
-        )
-    else:
-        columns = pd.Index([item["name"] for item in table_columns])
-        dataframe = pd.DataFrame(table_data, columns=columns)
+    columns = pd.Index([item["name"] for item in table_columns])
+    dataframe = pd.DataFrame(table_data, columns=columns)
 
     dataframe["DATE"] = pd.to_datetime(dataframe.DATE)
     dataframe = dataframe.set_index("DATE").sort_index()
 
-    if multiindex is True:
-        # removing date (index.name) from top level multiindex
-        dataframe.columns = pd.MultiIndex.from_tuples(dataframe.columns.to_flat_index())
-
-    if apply_numeric is True:
-        dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
-    else:
-        dataframe = dataframe.infer_objects()
-
-    if parse_dates is not None:
-        if multiindex:
-            for col_dates in parse_dates:
-                col_parsing = [
-                    col_tuple
-                    for col_tuple in dataframe.columns
-                    if col_dates in col_tuple
-                ]
-                for col_dates in col_parsing:
-                    dataframe[col_dates] = pd.to_datetime(
-                        dataframe[col_dates], errors="coerce"
-                    )
-        else:
-            for col_dates in parse_dates:
-                dataframe[col_dates] = pd.to_datetime(
-                    dataframe[col_dates], errors="coerce"
-                )
+    dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
 
     return dataframe

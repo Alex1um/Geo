@@ -96,25 +96,10 @@ HTML_ROW_BUTTON_VIZ = html.Div(
                     ),
                     dbc.Col(
                         [
-                            dbc.Button(
-                                "Download Table as CSV",
-                                color="primary",
-                                className="fs-4",
-                                id="button-download-csv",
-                            ),
-                            dcc.Download(id="download-csv"),
-                        ],
-                        width="auto",
-                        style={"visibility": "hidden"},
-                        id="row-button-download-csv",
-                    ),
-                    dbc.Col(
-                        [
                             dbc.Select(
                                 options=["SRT", "Hall"],
                                 value="Hall",
                                 id="graph-selector",
-                                # className="form-select"
                             )
                         ]
                     )
@@ -123,37 +108,6 @@ HTML_ROW_BUTTON_VIZ = html.Div(
             )
         ],
         class_name="my-4",
-    )
-)
-
-HTML_ROW_OPTIONS_GRAPH_RAINFALL = html.Div(
-    dbc.Container(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(
-                        [
-                            dbc.Label("Small Dataset (<= 2,920 data points) Options:"),
-                            dbc.RadioItems(
-                                options=[
-                                    {"label": "Stack", "value": "stack"},
-                                    {"label": "Group", "value": "group"},
-                                    {"label": "Line", "value": "line"},
-                                ],
-                                value="stack",
-                                id="radio-graphbar-options",
-                                inline=True,
-                            ),
-                        ],
-                        width="auto",
-                    )
-                ],
-                justify="center",
-            )
-        ],
-        fluid=True,
-        style={"visibility": "hidden"},
-        id="container-graphbar-options",
     )
 )
 

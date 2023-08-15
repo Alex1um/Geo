@@ -26,7 +26,6 @@ app.layout = dbc.Container(
         pylayout.HTML_ROW_BUTTON_UPLOAD,
         pylayout.HTML_ROW_TABLE,
         pylayout.HTML_ROW_BUTTON_VIZ,
-        pylayout.HTML_ROW_OPTIONS_GRAPH_RAINFALL,
         pylayout.HTML_ROW_GRAPH_ONE,
     ],
     fluid=True,
@@ -95,22 +94,15 @@ def callback_upload(content, filename, filedate, _):
 @app.callback(
     [
         Output("graph-container", "children"),
-        Output("row-button-download-csv", "style"),
-        # Output("graph-rainfall", "config"),
-        Output("container-graphbar-options", "style"),
     ],
     Input("button-visualize", "n_clicks"),
     State("output-table", "derived_virtual_data"),
     State("output-table", "columns"),
-    State("radio-graphbar-options", "value"),
     State("graph-selector", "value"),
     prevent_initial_call=True,
 )
-def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selector):
+def callback_visualize(_, table_data, table_columns, graph_selector):
     dataframe = pyfunc.transform_to_dataframe(table_data, table_columns)
-
-    row_download_table_style = {"visibility": "visible"}
-    row_graphbar_options_style = {"visibility": "hidden"}
 
     children = []
 
@@ -165,8 +157,6 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
 
     return [
         children,
-        row_download_table_style,
-        row_graphbar_options_style,
     ]
 
 @app.callback(
@@ -218,8 +208,10 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
 )
 def on_graph_select(bt, fig: dict):
     global dataframe
-    print(fig["layout"]["xaxis"]["rangeslider"]["range"])
-    df = makeHolla(dataframe)
+    data_range = fig["layout"]["xaxis"]["range"]
+    if "W" not in dataframe:
+        dataframe = makeHolla(dataframe)
+    df = dataframe[data_range[0] : data_range[1]]
     return [fig, {
         'data': [
             {'x': df["W"], 'y': df["HI"], 'type': 'line', 'name': 'HI'},
@@ -229,15 +221,6 @@ def on_graph_select(bt, fig: dict):
             'title': 'График Холла'
         }
     }]
-
-@app.callback(
-    Output("download-csv", "data"),
-    Input("button-download-csv", "n_clicks"),
-    prevent_initial_call=True,
-)
-def callback_download_table(_, table_data, table_columns):
-    dataframe = pyfunc.transform_to_dataframe(table_data, table_columns)
-    return dcc.send_data_frame(dataframe.to_csv, "derived_table.csv")
 
 
 if __name__ == "__main__":
