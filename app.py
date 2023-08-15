@@ -6,6 +6,7 @@ import pyfunc, pylayout, pylayoutfunc
 from dash import dcc, html, Input, Output, State
 from pathlib import Path
 import plotly.graph_objects as go
+import numpy as np
 
 
 # APP
@@ -50,7 +51,8 @@ def callback_upload(content, filename, filedate, _):
 
     if ctx.triggered[0]["prop_id"] == "button-skip.n_clicks":
         dataframe = pd.read_csv(
-            Path(r"./inj_well_36.csv"), index_col=0, parse_dates=True
+            Path(r"./inj_well_36.csv"), index_col=0, parse_dates=True,
+            usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
         )
         filename = None
         filedate = None
@@ -141,8 +143,17 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
         fig = go.Figure(data, layout)
         main_graph = dcc.Graph(figure=fig, id="graph-srt-data")
 
-        children = [main_graph]
+        layout_regression = go.Layout(hovermode="closest",
+                           title="<b>0</b>",
+                           yaxis={"title": "<b>1<b>"},
+                           xaxis={"title": "<b>2</b>"},
+                           legend={"title": "3"},
+                           )
+        regr_line = go.Scatter(x=[], y=[], mode="lines", name="regression")
+        fig = go.Figure([selected_points, regr_line], layout_regression)
+        regr_graph = dcc.Graph(figure=fig, id="graph-srt-regr-data")
 
+        children = [main_graph, regr_graph]
 
     return [
         children,
@@ -151,17 +162,42 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
     ]
 
 @app.callback(
-    Output("graph-srt-data", "figure"),
+    [
+        Output("graph-srt-data", "figure"),
+        Output("graph-srt-regr-data", "figure"),
+    ],
     [Input("graph-srt-data", "clickData")],
-    [State("graph-srt-data", "figure")],
+    [
+        State("graph-srt-data", "figure"),
+        State("graph-srt-regr-data", "figure")
+    ],
     prevent_initial_call=True,
 )
-def on_graph_click(clickData, fig: go.Figure):
+def on_graph_click(clickData, fig: dict, regr_fig: dict):
     curves = len(fig['data'])
-    if clickData and clickData['points'][0]['curveNumber'] != curves - 1:
-        fig['data'][-1]['y'].append(clickData['points'][0]['y'])
-        fig['data'][-1]['x'].append(clickData['points'][0]['x'])
-    return fig
+    if clickData:
+        new_x, new_y = clickData['points'][0]['x'], clickData['points'][0]['y']
+        y: list = fig['data'][-1]['y']
+        x: list = fig['data'][-1]['x']
+        if clickData['points'][0]['curveNumber'] != curves - 1:
+            y.append(new_y)
+            x.append(new_x)
+        else:
+            i = x.index(new_x)
+            x.pop(i)
+            y.pop(i)
+
+        regr_fig['data'][0]['y'] = y
+        regr_fig['data'][0]['x'] = x
+
+        x_len = len(x)
+        A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
+        m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
+        regr_fig['data'][1]['x'] = [min(x), max(x)]
+        regr_fig['data'][1]['y'] = [c, m * (x_len - 1) + c]
+
+
+    return fig, regr_fig
 
 
 @app.callback(
