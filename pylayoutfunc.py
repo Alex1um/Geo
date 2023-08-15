@@ -39,7 +39,7 @@ def create_table_layout(
             for i, edit_col in zip(new_dataframe.columns, editable)
         ],
         data=new_dataframe.to_dict("records"),
-        page_size=20,
+        page_size=10,
         cell_selectable=True,
         filter_action="native",
         sort_action="native",
