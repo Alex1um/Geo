@@ -16,8 +16,9 @@ def create_table_layout(
 ):
     from collections.abc import Iterable
 
-    new_dataframe = dataframe.rename_axis("DATE").reset_index()
-    new_dataframe.DATE = new_dataframe.DATE.dt.date
+    # new_dataframe = dataframe.rename_axis("DATE").reset_index()
+    # new_dataframe.DATE = new_dataframe.DATE.dt.date
+    new_dataframe = dataframe
 
     editable = (
         editable

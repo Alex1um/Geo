@@ -1,3 +1,5 @@
+import copy
+
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -6,11 +8,16 @@ import pyfunc, pylayout, pylayoutfunc
 from dash import dcc, html, Input, Output, State
 from pathlib import Path
 import plotly.graph_objects as go
+from dash import dash_table
 import numpy as np
 from holla import makeHolla
+from typing import Callable
+import base64
+import io
 
 
-dataframe = None
+dataframe_source: tuple[bytes, Callable] = None
+dataframe: pd.DataFrame = None
 
 
 # APP
@@ -24,6 +31,7 @@ app.layout = dbc.Container(
     [
         pylayout.HTML_TITLE,
         pylayout.HTML_ROW_BUTTON_UPLOAD,
+        pylayout.TABLE_CONFIG,
         pylayout.HTML_ROW_TABLE,
         pylayout.HTML_ROW_BUTTON_VIZ,
         pylayout.HTML_ROW_GRAPH_ONE,
@@ -34,9 +42,11 @@ app.layout = dbc.Container(
 
 @app.callback(
     [
+        Output("table-config", "style"),
+        Output("select-start", "value"),
         Output("row-table-uploaded", "children"),
-        Output("button-visualize", "disabled"),
-        Output("button-visualize", "outline"),
+        # Output("button-visualize", "disabled"),
+        # Output("button-visualize", "outline"),
     ],
     Input("dcc-upload", "contents"),
     State("dcc-upload", "filename"),
@@ -45,25 +55,33 @@ app.layout = dbc.Container(
     prevent_initial_call=True,
 )
 def callback_upload(content, filename, filedate, _):
-    ctx = dash.callback_context
+    global dataframe_source, dataframe
 
-    global dataframe
+    dataframe_source = None
 
     if content is not None:
-        children, dataframe = pyfunc.parse_upload_data(content, filename, filedate)
+        _, content_string = content.split(",")
 
-    if ctx.triggered[0]["prop_id"] == "button-skip.n_clicks":
-        dataframe = pd.read_csv(
-            Path(r"./inj_well_36.csv"), index_col=0, parse_dates=True,
-            usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
-        )
-        filename = None
-        filedate = None
+        decoded = base64.b64decode(content_string)
 
-    button_viz_disabled = True
-    button_viz_outline = True
+        if filename.endswith(".csv"):
+            dataframe_source = (io.StringIO(decoded.decode("utf-8")), pd.read_csv)
+        elif filename.endswith(".xlsx") or filename.endswith(".xls"):
+            dataframe_source = (decoded, pd.read_excel)
 
-    if dataframe is not None:
+    # button_viz_disabled = True
+    # button_viz_outline = True
+
+    val = -1
+    disabled = {"visibility": "hidden"}
+    children = []
+
+    if dataframe_source is not None:
+        disabled["visibility"] = "visible"
+        val = 0
+        dataframe_source = dataframe_source
+        dataframe = dataframe_source[1](dataframe_source[0], parse_dates=[[0, 1]])
+
         editable = [False] + [True] * len(dataframe.columns)
         children = pylayoutfunc.create_table_layout(
             dataframe,
@@ -73,13 +91,43 @@ def callback_upload(content, filename, filedate, _):
             editable=editable,
             renamable=True,
         )
-        button_viz_disabled = False
-        button_viz_outline = False
+        # button_viz_disabled = False
+        # button_viz_outline = False
+    else:
+        children = "Error!"
 
     return [
+        disabled,
+        val,
         children,
-        button_viz_disabled,
-        button_viz_outline,
+        # button_viz_disabled,
+        # button_viz_outline,
+    ]
+
+
+@app.callback(
+    [
+        Output("select-t", "options"),
+        Output("select-q", "options"),
+        Output("select-p", "options"),
+        Output("select-p0", "options"),
+    ],
+    Input("select-start", "value"),
+    prevent_initial_call=True,
+)
+def callback_start(value: int):
+    global dataframe
+    cols = []
+    if value >= 0:
+        if value == 0:
+            cols = dataframe.columns.array
+        else:
+            cols = dataframe.iloc[value - 1]
+    return [
+        cols,
+        cols,
+        cols,
+        cols,
     ]
 
 
@@ -181,8 +229,10 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         regr_fig['data'][0]['x'] = x
 
         x_len = len(x)
+
         A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
         m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
+
         regr_fig['data'][1]['x'] = [min(x), max(x)]
         regr_fig['data'][1]['y'] = [c, m * (x_len - 1) + c]
 

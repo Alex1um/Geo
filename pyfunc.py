@@ -1,4 +1,3 @@
-import base64
 import io
 import pandas as pd
 from dash import html
@@ -14,12 +13,12 @@ def parse_upload_data(content, filename, filedate):
         if filename.endswith(".csv"):
             dataframe = pd.read_csv(
                 io.StringIO(decoded.decode("utf-8")), index_col=0, parse_dates=True,
-                usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
+                # usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
             )
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
 
             dataframe = pd.read_excel(
-                decoded, index_col=0, header=1, parse_dates=[[0, 1]],
+                decoded, index_col=0, parse_dates=[[0, 1]],
             )
         else:
             return (
