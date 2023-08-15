@@ -191,8 +191,8 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
 
 @app.callback(
     [
-        Output("graph-hall-data", "figure", allow_duplicate=True),
-        Output("hall-graph", "figure", allow_duplicate=True)
+        Output("graph-hall-data", "figure"),
+        Output("hall-graph", "figure")
     ],
     [Input("bt-hall", "n_clicks")],
     [State("graph-hall-data", "figure")],
