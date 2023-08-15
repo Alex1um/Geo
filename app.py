@@ -7,6 +7,10 @@ from dash import dcc, html, Input, Output, State
 from pathlib import Path
 import plotly.graph_objects as go
 import numpy as np
+from holla import makeHolla
+
+
+dataframe = None
 
 
 # APP
@@ -45,6 +49,8 @@ app.layout = dbc.Container(
 )
 def callback_upload(content, filename, filedate, _):
     ctx = dash.callback_context
+
+    global dataframe
 
     if content is not None:
         children, dataframe = pyfunc.parse_upload_data(content, filename, filedate)
@@ -127,6 +133,8 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
         fig = go.Figure(data, layout)
         main_graph = dcc.Graph(figure=fig, id="graph-hall-data")
         children.append(main_graph)
+        children.append(dbc.Button(children="Process", id="bt-hall", color="primary", outline=False, className="fs-4 text-center"))
+        children.append(dcc.Graph(id="hall-graph"))
     elif graph_selector == "SRT":
         data = [
             go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
@@ -196,19 +204,31 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         regr_fig['data'][1]['x'] = [min(x), max(x)]
         regr_fig['data'][1]['y'] = [c, m * (x_len - 1) + c]
 
-
     return fig, regr_fig
 
 
 @app.callback(
-    Output("graph-hall-data", "figure", allow_duplicate=True),
-    [Input("graph-hall-data", "selectedData"), Input("graph-hall-data", "clickData")],
+    [
+        Output("graph-hall-data", "figure", allow_duplicate=True),
+        Output("hall-graph", "figure", allow_duplicate=True)
+    ],
+    [Input("bt-hall", "n_clicks")],
     [State("graph-hall-data", "figure")],
     prevent_initial_call=True,
 )
-def on_graph_select(selectedData: dict, clickData, fig: dict):
+def on_graph_select(bt, fig: dict):
+    global dataframe
     print(fig["layout"]["xaxis"]["rangeslider"]["range"])
-    return fig
+    df = makeHolla(dataframe)
+    return [fig, {
+        'data': [
+            {'x': df["W"], 'y': df["HI"], 'type': 'line', 'name': 'HI'},
+            {'x': df["W"][0:-1], 'y': df["DHI"][0:-1], 'type': 'line', 'name': 'DHI'},
+        ],
+        'layout': {
+            'title': 'График Холла'
+        }
+    }]
 
 @app.callback(
     Output("download-csv", "data"),

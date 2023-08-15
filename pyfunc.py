@@ -6,6 +6,7 @@ import numpy as np
 
 
 def parse_upload_data(content, filename, filedate):
+    content_string: str
     _, content_string = content.split(",")
 
     decoded = base64.b64decode(content_string)
@@ -16,20 +17,14 @@ def parse_upload_data(content, filename, filedate):
                 usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
             )
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
-            return (
-                html.Div(
-                    [
-                        "Fitur pembacaan berkas excel masih dalam tahap pengembangan.",
-                        " Template yang akan digunakan adalah hidrokit excel template.",
-                    ],
-                    className="text-center bg-danger text-white fs-4",
-                ),
-                None,
+
+            dataframe = pd.read_excel(
+                decoded, index_col=0, header=1, parse_dates=True,
             )
         else:
             return (
                 html.Div(
-                    ["Hanya dapat membaca format .csv (tiap kolom merupakan stasiun)"],
+                    ["Unknown extension"],
                     className="text-center bg-danger text-white fs-4",
                 ),
                 None,
