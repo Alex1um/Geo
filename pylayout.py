@@ -1,6 +1,6 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-from .empty import figure_empty
+from empty import figure_empty
 
 HTML_TITLE = html.Div(
     [

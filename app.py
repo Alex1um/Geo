@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 # APP
 app = dash.Dash(
     suppress_callback_exceptions=False,
-    external_stylesheets=[getattr(dbc.themes, "COSMO"), "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.4/dbc.min.css"]
+    external_stylesheets=[getattr(dbc.themes, "COSMO"), "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.4/dbc.min.css"],
 )
 server = app.server
 
@@ -123,7 +123,7 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
                            legend={"title": "3"},
                            )
         fig = go.Figure(data, layout)
-        main_graph = dcc.Graph(figure=fig, id="graph-data")
+        main_graph = dcc.Graph(figure=fig, id="graph-hall-data")
         children.append(main_graph)
     elif graph_selector == "SRT":
         data = [
@@ -139,7 +139,7 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
                            legend={"title": "3"},
                            )
         fig = go.Figure(data, layout)
-        main_graph = dcc.Graph(figure=fig, id="graph-data")
+        main_graph = dcc.Graph(figure=fig, id="graph-srt-data")
 
         children = [main_graph]
 
@@ -151,17 +151,27 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
     ]
 
 @app.callback(
-    Output("graph-data", "figure"),
-    [Input("graph-data", "clickData")],
-    [State("graph-data", "figure")],
-
+    Output("graph-srt-data", "figure"),
+    [Input("graph-srt-data", "clickData")],
+    [State("graph-srt-data", "figure")],
+    prevent_initial_call=True,
 )
 def on_graph_click(clickData, fig: go.Figure):
-    print(clickData, type(clickData))
     curves = len(fig['data'])
     if clickData and clickData['points'][0]['curveNumber'] != curves - 1:
         fig['data'][-1]['y'].append(clickData['points'][0]['y'])
         fig['data'][-1]['x'].append(clickData['points'][0]['x'])
+    return fig
+
+
+@app.callback(
+    Output("graph-hall-data", "figure", allow_duplicate=True),
+    [Input("graph-hall-data", "selectedData"), Input("graph-hall-data", "clickData")],
+    [State("graph-hall-data", "figure")],
+    prevent_initial_call=True,
+)
+def on_graph_select(selectedData: dict, clickData, fig: dict):
+    print(fig["layout"]["xaxis"]["rangeslider"]["range"])
     return fig
 
 @app.callback(
