@@ -5,6 +5,7 @@ import plotly.io as pio
 import pyfigure, pyfunc, pylayout, pylayoutfunc
 from dash import dcc, html, Input, Output, State
 from pathlib import Path
+import plotly.graph_objects as go
 
 
 # APP
@@ -85,9 +86,9 @@ def callback_upload(content, filename, filedate, _):
 
 @app.callback(
     [
-        Output("graph-rainfall", "figure"),
+        Output("graph-container", "children"),
         Output("row-button-download-csv", "style"),
-        Output("graph-rainfall", "config"),
+        # Output("graph-rainfall", "config"),
         Output("container-graphbar-options", "style"),
     ],
     Input("button-visualize", "n_clicks"),
@@ -101,30 +102,67 @@ def callback_visualize(_, table_data, table_columns, graphbar_opt, graph_selecto
     dataframe = pyfunc.transform_to_dataframe(table_data, table_columns)
 
     row_download_table_style = {"visibility": "visible"}
-    row_graph_config = {"staticPlot": False}
     row_graphbar_options_style = {"visibility": "hidden"}
 
-    if graph_selector == "Hall":
-        pass
-    elif graph_selector == "SRT":
-        pass
+    children = []
 
-    if dataframe.size > (366 * 8):
-        fig = pyfigure.figure_scatter(dataframe)
-    else:
-        row_graphbar_options_style = {"visibility": "visible"}
-        if graphbar_opt in ["group", "stack"]:
-            fig = pyfigure.figure_bar(dataframe, graphbar_opt)
-        else:
-            fig = pyfigure.figure_scatter(dataframe)
+    if graph_selector == "Hall":
+        data = [
+            go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
+            for col in dataframe.columns
+        ]
+        layout = go.Layout(hovermode="closest",
+                           title="<b>0</b>",
+                           yaxis={"title": "<b>1<b>"},
+                           xaxis=dict(
+                               title="<b>2</b>",
+                               rangeslider=dict(
+                                   visible=True
+                               )
+                           ),
+                           legend={"title": "3"},
+                           )
+        fig = go.Figure(data, layout)
+        main_graph = dcc.Graph(figure=fig, id="graph-data")
+        children.append(main_graph)
+    elif graph_selector == "SRT":
+        data = [
+            go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
+            for col in dataframe.columns
+        ]
+        selected_points = go.Scatter(x=[], y=[], mode="markers", name="selected", marker={"color": "#00ff00", "size": 20})
+        data.append(selected_points)
+        layout = go.Layout(hovermode="closest",
+                           title="<b>0</b>",
+                           yaxis={"title": "<b>1<b>"},
+                           xaxis={"title": "<b>2</b>"},
+                           legend={"title": "3"},
+                           )
+        fig = go.Figure(data, layout)
+        main_graph = dcc.Graph(figure=fig, id="graph-data")
+
+        children = [main_graph]
+
 
     return [
-        fig,
+        children,
         row_download_table_style,
-        row_graph_config,
         row_graphbar_options_style,
     ]
 
+@app.callback(
+    Output("graph-data", "figure"),
+    [Input("graph-data", "clickData")],
+    [State("graph-data", "figure")],
+
+)
+def on_graph_click(clickData, fig: go.Figure):
+    print(clickData, type(clickData))
+    curves = len(fig['data'])
+    if clickData and clickData['points'][0]['curveNumber'] != curves - 1:
+        fig['data'][-1]['y'].append(clickData['points'][0]['y'])
+        fig['data'][-1]['x'].append(clickData['points'][0]['x'])
+    return fig
 
 @app.callback(
     Output("download-csv", "data"),

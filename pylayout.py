@@ -165,9 +165,11 @@ HTML_ROW_GRAPH_ONE = html.Div(
                     id="graph-rainfall",
                     figure=pyfigure.figure_empty(),
                     config={"staticPlot": True},
-                )
+
+                ),
             )
         ],
         fluid=True,
+        id="graph-container"
     )
 )
