@@ -30,23 +30,33 @@ def _generate_dict_watermark(n: int = 1):
     )
 
 
-LABEL_GRAPH_RAINFALL = dict(
-    title="<b>Rainfall Each Station</b>",
-    yaxis={"title": "<b>Rainfall (mm)</b>"},
-    xaxis={"title": "<b>Date</b>"},
-    legend={"title": "Stations"},
+LABEL_GRAPH_INPUT_DATA = dict(
+    title="<b>Исходные данные</b>",
+    yaxis={"title": "<b>Дебит</b>"},
+    xaxis={"title": "<b>Дата</b>"},
+    legend={"title": "Параметры"},
 )
 
-
+# первый график визуализации имеющихся данных
 def figure_scatter(dataframe):
 
-    data = [
-        go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
-        for col in dataframe.columns
-    ]
-    layout = go.Layout(hovermode="closest", **LABEL_GRAPH_RAINFALL)
+    fig = make_subplots(rows=3)
 
-    fig = go.Figure(data, layout)
+    i = 0
+    # fig.add_trace(go.Scatter(x=dataframe.index, y=dataframe[dataframe.columns[1]], name=col, yaxis=f"y"))
+
+    for col in dataframe.columns:
+        if i == 0:
+            fig.add_trace(go.Scatter(x=dataframe.index, y=dataframe[col], name=col))
+        else:
+            fig.add_trace(go.Scatter(x=dataframe.index, y=dataframe[col], name=col, yaxis=f"y{i}"))
+        i += 1
+        # data = [
+        #     go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
+        #     for col in dataframe.columns
+        # ]
+    # layout = go.Layout(hovermode="closest", **LABEL_GRAPH_INPUT_DATA)
+
 
     return fig
 
@@ -69,7 +79,7 @@ def figure_bar(dataframe, barmode="stack"):
         for col in col_df
     ]
     layout = go.Layout(
-        hovermode="x unified", barmode=barmode, bargap=bargap, **LABEL_GRAPH_RAINFALL
+        hovermode="x unified", barmode=barmode, bargap=bargap, **LABEL_GRAPH_INPUT_DATA
     )
 
     fig = go.Figure(data, layout)

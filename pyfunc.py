@@ -12,7 +12,8 @@ def parse_upload_data(content, filename, filedate):
     try:
         if filename.endswith(".csv"):
             dataframe = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8")), index_col=0, parse_dates=True
+                io.StringIO(decoded.decode("utf-8")), index_col=0, parse_dates=True,
+                usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
             )
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
             return (
