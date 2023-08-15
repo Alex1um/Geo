@@ -2,7 +2,7 @@ import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.io as pio
-import pyfigure, pyfunc, pylayout, pylayoutfunc
+import pyfunc, pylayout, pylayoutfunc
 from dash import dcc, html, Input, Output, State
 from pathlib import Path
 import plotly.graph_objects as go

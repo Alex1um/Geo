@@ -1,6 +1,6 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-import pyfigure
+from .empty import figure_empty
 
 HTML_TITLE = html.Div(
     [
@@ -67,7 +67,7 @@ HTML_ROW_TABLE = html.Div(
                 dbc.CardBody(
                     id="row-table-uploaded",
                     children=dcc.Graph(
-                        figure=pyfigure.figure_empty(),
+                        figure=figure_empty(),
                         config={"staticPlot": True},
                     ),
                 ),
@@ -163,7 +163,7 @@ HTML_ROW_GRAPH_ONE = html.Div(
             dcc.Loading(
                 dcc.Graph(
                     id="graph-rainfall",
-                    figure=pyfigure.figure_empty(),
+                    figure=figure_empty(),
                     config={"staticPlot": True},
 
                 ),
