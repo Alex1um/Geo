@@ -35,8 +35,6 @@ app.layout = dbc.Container(
 @app.callback(
     [
         Output("row-table-uploaded", "children"),
-        Output("dcc-upload", "disabled"),
-        Output("button-upload", "disabled"),
         Output("button-visualize", "disabled"),
         Output("button-visualize", "outline"),
     ],
@@ -62,8 +60,6 @@ def callback_upload(content, filename, filedate, _):
         filename = None
         filedate = None
 
-    upload_disabled = False
-    button_upload_disabled = False
     button_viz_disabled = True
     button_viz_outline = True
 
@@ -77,15 +73,11 @@ def callback_upload(content, filename, filedate, _):
             editable=editable,
             renamable=True,
         )
-        upload_disabled = False
-        button_upload_disabled = False
         button_viz_disabled = False
         button_viz_outline = False
 
     return [
         children,
-        upload_disabled,
-        button_upload_disabled,
         button_viz_disabled,
         button_viz_outline,
     ]
