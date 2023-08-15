@@ -96,7 +96,7 @@ HTML_ROW_BUTTON_VIZ = html.Div(
                     ),
                     dbc.Col(
                         [
-                            dbc.Select(
+                            dcc.Dropdown(
                                 options=["SRT", "Hall"],
                                 value="Hall",
                                 id="graph-selector",
