@@ -6,7 +6,7 @@ import numpy as np
 # output data: <pandas.DataFrame> с добавленными столбцами ["Q_м3_мес", "W", "dP", 'HI", "DHI"]
 def makeHolla(dataframe):
     df = dataframe
-    df.insert(len(df.columns), "Q_м3_мес", np.array(df['Q_м3_сут'] / 24 * df['Т_раб']))
+    df.insert(len(df.columns), "Q_м3_мес", np.array(df['Q_м3_сут']))
     df.insert(len(df.columns), "W", np.cumsum(np.array(df['Q_м3_мес'])))
     df.insert(len(df.columns), "dP", np.array(df['Р_заб'] - np.array(df['Р_пласт'])))
     df.insert(len(df.columns), "HI", np.cumsum(np.array(df['dP'])))

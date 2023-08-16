@@ -53,5 +53,4 @@ tzdata==2023.3
 urllib3==2.0.4
 wcwidth==0.2.6
 Werkzeug==2.2.3
-widgetsnbextension==4.0.8
 xyzservices==2023.7.0

@@ -1,3 +1,4 @@
+from dash import dash_table
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from empty import figure_empty
@@ -60,27 +61,45 @@ HTML_ROW_BUTTON_UPLOAD = html.Div(
     ),
 )
 
-TABLE_CONFIG = dbc.Container(
-    [dbc.Row(
-        [
-            dbc.Col("Table begin"),
-            dbc.Col("T"),
-            dbc.Col("Q"),
-            dbc.Col("P"),
-            dbc.Col("Р_0")
-        ]
-    ),
-    dbc.Row(
-        [
-            dbc.Col(dbc.Input(type="number", id="select-start", value=0)),
-            dbc.Col(dcc.Dropdown(id="select-t")),
-            dbc.Col(dcc.Dropdown(id="select-q")),
-            dbc.Col(dcc.Dropdown(id="select-p")),
-            dbc.Col(dcc.Dropdown(id="select-p0")),
-        ]
-    )],
-    id="table-config",
-    style={"visibility": "hidden"}
+TABLE_BEGIN = dbc.Container(
+    [
+        dbc.Row(
+            [dbc.Col(dbc.Input(type="number", id="select-start", value=0))],
+        ),
+        dbc.Row(
+            [
+                dbc.Col(dash_table.DataTable(
+                    id="table-begin-table",
+                    style_table={"overflowX": "auto"},
+                    page_size=10,
+                ))
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col("Date fields"),
+                dbc.Col("Q"),
+                dbc.Col("P"),
+                dbc.Col("Р_0")
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(dcc.Dropdown(id="select-date", multi=True)),
+                dbc.Col(dcc.Dropdown(id="select-q")),
+                dbc.Col(dcc.Dropdown(id="select-p")),
+                dbc.Col(dcc.Dropdown(id="select-p0")),
+            ]
+        ),
+        dbc.Row(
+            [
+                dbc.Col(dbc.Button(["Submit"], id="table-begin-submit", disabled=True)),
+            ]
+        )
+    ],
+    id="table-begin",
+    fluid=True,
+    style={"visibility": "hidden"},
 )
 
 HTML_ROW_TABLE = html.Div(

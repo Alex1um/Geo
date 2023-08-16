@@ -16,7 +16,7 @@ import base64
 import io
 
 
-dataframe_source: tuple[bytes, Callable] = None
+dataframe_source: pd.DataFrame = None
 dataframe: pd.DataFrame = None
 
 
@@ -31,7 +31,7 @@ app.layout = dbc.Container(
     [
         pylayout.HTML_TITLE,
         pylayout.HTML_ROW_BUTTON_UPLOAD,
-        pylayout.TABLE_CONFIG,
+        pylayout.TABLE_BEGIN,
         pylayout.HTML_ROW_TABLE,
         pylayout.HTML_ROW_BUTTON_VIZ,
         pylayout.HTML_ROW_GRAPH_ONE,
@@ -42,9 +42,8 @@ app.layout = dbc.Container(
 
 @app.callback(
     [
-        Output("table-config", "style"),
+        Output("table-begin", "style"),
         Output("select-start", "value"),
-        Output("row-table-uploaded", "children"),
         # Output("button-visualize", "disabled"),
         # Output("button-visualize", "outline"),
     ],
@@ -55,7 +54,7 @@ app.layout = dbc.Container(
     prevent_initial_call=True,
 )
 def callback_upload(content, filename, filedate, _):
-    global dataframe_source, dataframe
+    global dataframe_source
 
     dataframe_source = None
 
@@ -65,70 +64,124 @@ def callback_upload(content, filename, filedate, _):
         decoded = base64.b64decode(content_string)
 
         if filename.endswith(".csv"):
-            dataframe_source = (io.StringIO(decoded.decode("utf-8")), pd.read_csv)
+            dataframe_source = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
-            dataframe_source = (decoded, pd.read_excel)
-
-    # button_viz_disabled = True
-    # button_viz_outline = True
+            dataframe_source = pd.read_excel(decoded)
 
     val = -1
     disabled = {"visibility": "hidden"}
-    children = []
 
     if dataframe_source is not None:
         disabled["visibility"] = "visible"
         val = 0
-        dataframe_source = dataframe_source
-        dataframe = dataframe_source[1](dataframe_source[0], parse_dates=[[0, 1]])
-
-        editable = [False] + [True] * len(dataframe.columns)
-        children = pylayoutfunc.create_table_layout(
-            dataframe,
-            "output-table",
-            filename=filename,
-            filedate=filedate,
-            editable=editable,
-            renamable=True,
-        )
-        # button_viz_disabled = False
-        # button_viz_outline = False
-    else:
-        children = "Error!"
 
     return [
         disabled,
         val,
-        children,
-        # button_viz_disabled,
-        # button_viz_outline,
     ]
 
 
 @app.callback(
     [
-        Output("select-t", "options"),
+        Output("table-begin-table", "data"),
+        Output("select-date", "options"),
         Output("select-q", "options"),
         Output("select-p", "options"),
         Output("select-p0", "options"),
+        Output("select-date", "value"),
+        Output("select-q", "value"),
+        Output("select-p", "value"),
+        Output("select-p0", "value"),
     ],
     Input("select-start", "value"),
     prevent_initial_call=True,
 )
 def callback_start(value: int):
-    global dataframe
+    global dataframe_source
+    data = []
     cols = []
     if value >= 0:
+        new_dataframe = dataframe_source.iloc[value:value + 5]
         if value == 0:
-            cols = dataframe.columns.array
+            new_dataframe.columns = dataframe_source.columns
         else:
-            cols = dataframe.iloc[value - 1]
+            new_dataframe.columns = dataframe_source.iloc[value - 1]
+        cols = new_dataframe.columns.array
+        data = new_dataframe.to_dict("records")
     return [
+        data,
         cols,
         cols,
         cols,
         cols,
+        None,
+        None,
+        None,
+        None,
     ]
+
+@app.callback(
+    [
+        Output("table-begin-submit", "disabled"),
+        Output("table-begin-submit", "outline")
+    ],
+    [
+        Input("select-date", "value"),
+        Input("select-q", "value"),
+        Input("select-p", "value"),
+        Input("select-p0", "value"),
+    ],
+    [
+        State("select-start", "value")
+    ],
+    prevent_initial_call=True
+)
+def callback_start_next(date, q_col, p_col, p0_col, table_start):
+    disabled = not all((date, q_col, p_col, p0_col))
+    outline = disabled
+    return [
+        disabled,
+        outline
+    ]
+
+
+@app.callback(
+    [
+        Output("row-table-uploaded", "children"),
+        Output("button-visualize", "disabled"),
+        Output("button-visualize", "outline"),
+    ],
+    Input("table-begin-submit", "n_clicks"),
+    [
+        State("select-date", "value"),
+        State("select-q", "value"),
+        State("select-p", "value"),
+        State("select-p0", "value"),
+        State("select-start", "value"),
+    ],
+    prevent_initial_call=True,
+)
+def callback_on_table_submit(_, date: list[str], q_col: str, p_col: str, p0_col: str, start: int):
+    global dataframe, dataframe_source
+    dataframe = dataframe_source.iloc[start:]
+    dataframe.columns = dataframe_source.iloc[start - 1]
+    dataframe = dataframe[[*date, q_col, p_col, p0_col]]
+    dataframe["DATE"] = dataframe[date].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+    dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
+    dataframe = dataframe.set_index("DATE").sort_index()
+    # dataframe = dataframe.loc[:, [q_col, p_col, p0_col]]
+    # dataframe = dataframe.rename({q_col: "Q", p_col: "P", p0_col: "P0"})
+    # new_dataframe = pyfunc.transform_to_dataframe(dataframe, dataframe.columns)
+    # table = pylayoutfunc.create_table_layout(new_dataframe, "output-table")
+    #
+    table = dash_table.DataTable(dataframe.to_dict("records"), id="output-table")
+
+    return [
+        table,
+        False,
+        False
+    ]
+
 
 
 @app.callback(
@@ -142,7 +195,7 @@ def callback_start(value: int):
     prevent_initial_call=True,
 )
 def callback_visualize(_, table_data, table_columns, graph_selector):
-    dataframe = pyfunc.transform_to_dataframe(table_data, table_columns)
+    # dataframe = pyfunc.transform_to_dataframe(table_data, table_columns)
 
     children = []
 
