@@ -15,15 +15,14 @@ import base64
 import io
 from two_tangs import makeTangs
 
-
 dataframe_source: pd.DataFrame = None
 dataframe: pd.DataFrame = None
-
 
 # APP
 app = dash.Dash(
     suppress_callback_exceptions=False,
-    external_stylesheets=[getattr(dbc.themes, "COSMO"), "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.4/dbc.min.css"],
+    external_stylesheets=[getattr(dbc.themes, "COSMO"),
+                          "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates@V1.0.4/dbc.min.css"],
 )
 server = app.server
 
@@ -39,6 +38,7 @@ app.layout = dbc.Container(
     fluid=True,
     className="dbc",
 )
+
 
 @app.callback(
     [
@@ -120,6 +120,7 @@ def callback_start(value: int):
         None,
     ]
 
+
 @app.callback(
     [
         Output("table-begin-submit", "disabled"),
@@ -179,14 +180,13 @@ def callback_on_table_submit(_, date: list[str], date_type: str, q_col: str, p_c
     dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0"})
     # dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
 
-    table = dash_table.DataTable(dataframe.to_dict("records"), id="output-table")
+    table = dash_table.DataTable(dataframe.to_dict("records"), id="output-table", page_size=10)
 
     return [
         table,
         False,
         False
     ]
-
 
 
 @app.callback(
@@ -223,53 +223,70 @@ def callback_visualize(_, table_data, table_columns, graph_selector):
         fig = go.Figure(data, layout)
         main_graph = dcc.Graph(figure=fig, id="graph-hall-data")
         children.append(main_graph)
-        children.append(dbc.Button(children="Process", id="bt-hall", color="primary", outline=False, className="fs-4 text-center"))
+        children.append(
+            dbc.Button(children="Process", id="bt-hall", color="primary", outline=False, className="fs-4 text-center"))
         children.append(dcc.Graph(id="hall-graph"))
     elif graph_selector == "SRT":
-
-        # вторую ось надо сделать здесь https://plotly.com/python/multiple-axes/
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
         fig.add_trace(
-            go.Scatter(x=dataframe.index, y=dataframe["P"], name="yaxis data"),
+            go.Scatter(x=dataframe.index, y=dataframe["P"], name="Pressure"),
             secondary_y=False,
         )
         fig.add_trace(
-            go.Scatter(x=dataframe.index, y=dataframe['Q'], name="yaxis2 data", opacity=0.5),
+            go.Scatter(x=dataframe.index, y=dataframe['Q'], name="Flow Rate", opacity=0.5),
             secondary_y=True,
         )
 
+        fig.update_layout(
+            title_text="<b>Select the points</b>",
+            xaxis=dict(
+                title="<b>Time</b>"
+            ),
+            yaxis=dict(
+                title="<b>Pressure</b>",
+                titlefont=dict(
+                    color="#1f77b4"
+                ),
+                tickfont=dict(
+                    color="#1f77b4"
+                )
+            ),
+            yaxis2=dict(
+                title="Flow Rate",
+                titlefont=dict(
+                    color="#ff7f0e"
+                ),
+                tickfont=dict(
+                    color="#ff7f0e"
+                )
+            ))
 
-
-
-        # data = [
-        #     go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
-        #     for col in dataframe.columns
-        # ]
-        selected_points = go.Scatter(x=[], y=[], mode="markers", name="Selected Points", marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}})
+        selected_points = go.Scatter(x=[], y=[], mode="markers", name="Selected Points",
+                                     marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}})
         # data.append(selected_points)
         fig.add_trace(
-            go.Scatter(x=[], y=[], mode="markers", name="Selected Points", marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}}),
+            go.Scatter(x=[], y=[], mode="markers", name="Selected Points",
+                       marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}}),
             secondary_y=False,
         )
-        layout = go.Layout(hovermode="closest",
-                           title="<b>Select points</b>",
-                           yaxis={"title": "<b>Pressure<b>"},
-                           xaxis={"title": "<b>Time</b>"},
-                           legend={"title": "Legend"},
-                           )
-        # fig = go.Figure(data, layout)
+
+        # fig.update_layout(hovermode='x unified')
+
         main_graph = dcc.Graph(figure=fig, id="graph-srt-data")
 
         layout_regression = go.Layout(hovermode="closest",
-                           title="<b>SRTest</b>",
-                           yaxis={"title": "<b>Pressure<b>"},
-                           xaxis={"title": "<b>Flow Rate</b>"},
-                           legend={"title": "Legend"},
-                           )
+                                      title="<b>SRTest</b>",
+                                      yaxis={"title": "<b>Pressure<b>"},
+                                      xaxis={"title": "<b>Flow Rate</b>"},
+                                      legend={"title": "Legend"})
+
         regr_left = go.Scatter(x=[], y=[], mode="lines", name="Left Regression")
         regr_right = go.Scatter(x=[], y=[], mode="lines", name="Right Regression")
-        fig = go.Figure([selected_points, regr_left, regr_right], layout_regression)
+        cross_point = go.Scatter(x=[], y=[], mode="markers+text", name="Fracturing Pressure",
+                                 marker={"color": "#ff0000", "size": 10, "symbol": "circle", "line": {"width": 2}},
+                                 text="P frac", textposition='top left', textfont={'size': 14})
+        fig = go.Figure([selected_points, regr_left, regr_right, cross_point], layout_regression)
         regr_graph = dcc.Graph(figure=fig, id="graph-srt-regr-data")
 
         children = [main_graph, regr_graph]
@@ -277,6 +294,7 @@ def callback_visualize(_, table_data, table_columns, graph_selector):
     return [
         children,
     ]
+
 
 @app.callback(
     [
@@ -310,17 +328,22 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         print("y = ", y)
         print('x = ', x)
 
-        # x_len = len(x)
-        # A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
+        if len(x) >= 4:
+            y_left, y_right, cross = makeTangs(x, y)
 
-        y_left, y_right, cross = makeTangs(x, y)
+            # regr_fig['layout']['text'] = f'''
+            # Fracturing Pressure = {cross[0] / 1000000} МПа
+            # '''
 
-        # m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
-        regr_fig['data'][1]['x'] = x
-        regr_fig['data'][1]['y'] = y_left
+            # m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
+            regr_fig['data'][1]['x'] = x
+            regr_fig['data'][1]['y'] = y_left
 
-        regr_fig['data'][2]['x'] = x
-        regr_fig['data'][2]['y'] = y_right
+            regr_fig['data'][2]['x'] = x
+            regr_fig['data'][2]['y'] = y_right
+
+            regr_fig['data'][3]['x'] = [cross[0]]
+            regr_fig['data'][3]['y'] = [cross[1]]
 
     return fig, regr_fig
 

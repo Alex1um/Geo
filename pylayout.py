@@ -6,9 +6,15 @@ from empty import figure_empty
 HTML_TITLE = html.Div(
     [
         html.H1(
-            "asd",
+            "GeoPROD",
             className="float fw-bold text-center mt-3 fs-1 fw-bold",
         ),
+        html.H6(
+            "TechnoHack 2023"
+        ),
+        html.A(
+            "GitHub", href="https://github.com/Alex1um/Geo>GitHub"
+        )
     ],
     className="text-center",
 )
@@ -88,7 +94,7 @@ TABLE_BEGIN = dbc.Container(
                 dbc.Col(
                     [
                         dbc.Row(dcc.Dropdown(id="select-date", multi=True)),
-                        dbc.Row(dbc.RadioItems(id="select-date-type", options=["Time", "Date"], value="Date")),
+                        dbc.Row(dcc.RadioItems(id="select-date-type", options=["Time", "Date"], value="Date")),
                     ],
                 ),
                 dbc.Col(dcc.Dropdown(id="select-q")),
