@@ -5,11 +5,17 @@ import numpy as np
 # input data: <pandas.DataFrame> татнефтевских экселек
 # output data: <pandas.DataFrame> с добавленными столбцами ["Q_м3_мес", "W", "dP", 'HI", "DHI"]
 def makeHolla(dataframe):
-    df = dataframe
-    df.insert(len(df.columns), "Q_1", np.array(df['Q']))
-    df.insert(len(df.columns), "W", np.cumsum(np.array(df['Q_1'])))
-    df.insert(len(df.columns), "dP", np.array(df['P'] - np.array(df['P_0'])))
-    df.insert(len(df.columns), "HI", np.cumsum(np.array(df['dP'])))
+    df: pd.DataFrame = dataframe.iloc[:]
+    diff = df.index.to_series().diff().shift(-1)
+    df["dT"] = diff.fillna(diff.iloc[-2])
+    df["Q_1"] = df["Q"] * df["dT"].dt.days
+    df["W"] = df["Q_1"].cumsum()
+    df["dP"] = df["P"] - df["P_0"]
+    df["HI"] = df["dP"].cumsum()
+    # df.insert(len(df.columns), "Q_1", np.array(df['Q']) * df['dT'])
+    # df.insert(len(df.columns), "W", np.cumsum(np.array(df['Q_1'])))
+    # df.insert(len(df.columns), "dP", np.array(df['P'] - np.array(df['P_0'])))
+    # df.insert(len(df.columns), "HI", np.cumsum(np.array(df['dP'])))
     DHI = np.zeros(len(df))
     for i in range(0, len(df)-1):
         DHI[i] = (df['HI'][i+1] - df['HI'][i]) / ((np.log(df['W'][i+1] / df['W'][i])))

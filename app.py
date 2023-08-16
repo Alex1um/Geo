@@ -351,5 +351,16 @@ def on_graph_select(bt, fig: dict):
     }]
 
 
+# @app.callback(
+#     Output("button-upload", "disabled"),
+#     Input("graph-hall-data", "hoverData"),
+#     State("graph-hall-data", "relayoutData"),
+#     prevent_initial_call=True,
+# )
+# def on_hall_change(click, relayout_data):
+#     print(click)
+#     return False
+
+
 if __name__ == "__main__":
     app.run_server(debug=True)
