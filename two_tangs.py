@@ -9,59 +9,64 @@ def makeTangs(x, y):
 
     sum_R = 0
 
-    for i in range(2, len(dots) - 1):
-        # коэф-ты линии тренда в массиве kx + m вида [k, m]
-        k_left, m_left = np.polyfit(dots[:i, 0], dots[:i, 1], 1)
+    if len(dots) >= 4:
+        for i in range(2, len(dots) - 1):
+            # коэф-ты линии тренда в массиве kx + m вида [k, m]
+            k_left, m_left = np.polyfit(dots[:i, 0], dots[:i, 1], 1)
 
-        # функция numpy.poly1d
-        left_trend = np.poly1d([k_left, m_left])
-        # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
+            # функция numpy.poly1d
+            left_trend = np.poly1d([k_left, m_left])
+            # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
 
-        y_left = np.zeros_like(x)
-        for j in range(len(x)):
-            y_left[j] = k_left * x[j] + m_left
+            y_left = np.zeros_like(x)
+            for j in range(len(x)):
+                y_left[j] = k_left * x[j] + m_left
 
-        R_left = np.corrcoef(y_left[:i], y[:i])[0][1]
-        # print('R = ', R_left)
-        # print("~~~~~")
+            R_left = np.corrcoef(y_left[:i], y[:i])[0][1]
+            # print('R = ', R_left)
+            # print("~~~~~")
 
 
-        k_right, m_right = np.polyfit(dots[i:, 0], dots[i:, 1], 1)
+            k_right, m_right = np.polyfit(dots[i:, 0], dots[i:, 1], 1)
 
-        right_trend = np.poly1d([k_right, m_right])
-        # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
+            right_trend = np.poly1d([k_right, m_right])
+            # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
 
-        y_right = np.zeros_like(x)
-        for j in range(len(x)):
-            y_right[j] = k_right * x[j] + m_right
+            y_right = np.zeros_like(x)
+            for j in range(len(x)):
+                y_right[j] = k_right * x[j] + m_right
 
-        R_right = np.corrcoef(y_right[i:], y[i:])[0][1]
-        # print('R = ', R_right)
+            R_right = np.corrcoef(y_right[i:], y[i:])[0][1]
+            # print('R = ', R_right)
 
-        # print("-----------------")
+            # print("-----------------")
 
-        if R_left + R_right > sum_R:
-            # print(f"соотношение {i} : {len(x) - i}")
-            # print(f"R = {R_left} + {R_right} = {R_left + R_right} > {sum_R}")
-            left = [k_left, m_left]
-            right = [k_right, m_right]
-            sum_R = R_left + R_right
-        # else:
-        #     print(f"соотношение {i} : {len(x) - i}")
-        #     print(f"R = {R_left} + {R_right} = {R_left + R_right} < {sum_R}")
+            if R_left + R_right > sum_R:
+                # print(f"соотношение {i} : {len(x) - i}")
+                # print(f"R = {R_left} + {R_right} = {R_left + R_right} > {sum_R}")
+                left = [k_left, m_left]
+                right = [k_right, m_right]
+                sum_R = R_left + R_right
+            # else:
+            #     print(f"соотношение {i} : {len(x) - i}")
+            #     print(f"R = {R_left} + {R_right} = {R_left + R_right} < {sum_R}")
 
-    for i in range(len(x)):
-        y_left[i] = left[0] * x[i] + left[1]
-        y_right[i] = right[0] * x[i] + right[1]
+        for i in range(len(x)):
+            y_left[i] = left[0] * x[i] + left[1]
+            y_right[i] = right[0] * x[i] + right[1]
 
-    k1 = left[0]
-    k2 = right[0]
-    m1 = left[1]
-    m2 = right[1]
-    y_ = (m1 * k2 - m2 * k1) / (k2 - k1)
-    x_ = (y_ - m1) / k1
-    cross = [x_, y_]
+        k1 = left[0]
+        k2 = right[0]
+        m1 = left[1]
+        m2 = right[1]
+        y_ = (m1 * k2 - m2 * k1) / (k2 - k1)
+        x_ = (y_ - m1) / k1
+        cross = [x_, y_]
     # print(cross)
+    else:
+        y_left = np.zeros_like(x)
+        y_right = np.zeros_like(x)
+        cross = [0, 0]
 
     return y_left, y_right, cross
 

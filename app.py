@@ -1,5 +1,3 @@
-import copy
-
 import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -9,11 +7,13 @@ from dash import dcc, html, Input, Output, State
 from pathlib import Path
 import plotly.graph_objects as go
 from dash import dash_table
+from plotly.subplots import make_subplots
 import numpy as np
 from holla import makeHolla
 from typing import Callable
 import base64
 import io
+from two_tangs import makeTangs
 
 
 dataframe_source: pd.DataFrame = None
@@ -220,29 +220,50 @@ def callback_visualize(_, table_data, table_columns, graph_selector):
         children.append(dbc.Button(children="Process", id="bt-hall", color="primary", outline=False, className="fs-4 text-center"))
         children.append(dcc.Graph(id="hall-graph"))
     elif graph_selector == "SRT":
-        data = [
-            go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
-            for col in dataframe.columns
-        ]
-        selected_points = go.Scatter(x=[], y=[], mode="markers", name="selected", marker={"color": "#00ff00", "size": 20})
-        data.append(selected_points)
+
+        # вторую ось надо сделать здесь https://plotly.com/python/multiple-axes/
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        fig.add_trace(
+            go.Scatter(x=dataframe.index, y=dataframe["Pressure"], name="yaxis data"),
+            secondary_y=False,
+        )
+        fig.add_trace(
+            go.Scatter(x=dataframe.index, y=dataframe['FlowRate'], name="yaxis2 data", opacity=0.5),
+            secondary_y=True,
+        )
+
+
+
+
+        # data = [
+        #     go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
+        #     for col in dataframe.columns
+        # ]
+        selected_points = go.Scatter(x=[], y=[], mode="markers", name="Selected Points", marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}})
+        # data.append(selected_points)
+        fig.add_trace(
+            go.Scatter(x=[], y=[], mode="markers", name="Selected Points", marker={"color": "#000000", "size": 10, "symbol": "x-thin", "line": {"width": 2}}),
+            secondary_y=False,
+        )
         layout = go.Layout(hovermode="closest",
-                           title="<b>0</b>",
-                           yaxis={"title": "<b>1<b>"},
-                           xaxis={"title": "<b>2</b>"},
-                           legend={"title": "3"},
+                           title="<b>Select points</b>",
+                           yaxis={"title": "<b>Pressure<b>"},
+                           xaxis={"title": "<b>Time</b>"},
+                           legend={"title": "Legend"},
                            )
-        fig = go.Figure(data, layout)
+        # fig = go.Figure(data, layout)
         main_graph = dcc.Graph(figure=fig, id="graph-srt-data")
 
         layout_regression = go.Layout(hovermode="closest",
-                           title="<b>0</b>",
-                           yaxis={"title": "<b>1<b>"},
-                           xaxis={"title": "<b>2</b>"},
-                           legend={"title": "3"},
+                           title="<b>SRTest</b>",
+                           yaxis={"title": "<b>Pressure<b>"},
+                           xaxis={"title": "<b>Flow Rate</b>"},
+                           legend={"title": "Legend"},
                            )
-        regr_line = go.Scatter(x=[], y=[], mode="lines", name="regression")
-        fig = go.Figure([selected_points, regr_line], layout_regression)
+        regr_left = go.Scatter(x=[], y=[], mode="lines", name="Left Regression")
+        regr_right = go.Scatter(x=[], y=[], mode="lines", name="Right Regression")
+        fig = go.Figure([selected_points, regr_left, regr_right], layout_regression)
         regr_graph = dcc.Graph(figure=fig, id="graph-srt-regr-data")
 
         children = [main_graph, regr_graph]
@@ -277,22 +298,23 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
             x.pop(i)
             y.pop(i)
 
-        regr_fig['data'][0]['y'] = y
         regr_fig['data'][0]['x'] = x
+        regr_fig['data'][0]['y'] = y
 
         print("y = ", y)
         print('x = ', x)
 
-        x_len = len(x)
+        # x_len = len(x)
+        # A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
 
-        A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
+        y_left, y_right, cross = makeTangs(x, y)
 
-        print(A)
+        # m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
+        regr_fig['data'][1]['x'] = x
+        regr_fig['data'][1]['y'] = y_left
 
-        m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
-
-        regr_fig['data'][1]['x'] = [min(x), max(x)]
-        regr_fig['data'][1]['y'] = [c, m * (x_len - 1) + c]
+        regr_fig['data'][2]['x'] = x
+        regr_fig['data'][2]['y'] = y_right
 
     return fig, regr_fig
 
