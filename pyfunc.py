@@ -12,10 +12,15 @@ def parse_upload_data(content, filename, filedate):
     decoded = base64.b64decode(content_string)
     try:
         if filename.endswith(".csv"):
-            dataframe = pd.read_csv(
-                io.StringIO(decoded.decode("utf-8")), index_col=0, parse_dates=True,
-                usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
-            )
+            try:
+                dataframe = pd.read_csv(
+                    io.StringIO(decoded.decode("utf-8")), index_col=0, parse_dates=True,
+                    usecols=["date", "Qприем ТМ", "Рбуф", "Dшт"]
+                )
+            except:
+                dataframe = pd.read_csv(
+                    io.StringIO(decoded.decode("utf-8"))
+                )
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
 
             dataframe = pd.read_excel(
@@ -44,9 +49,9 @@ def transform_to_dataframe(
     columns = pd.Index([item["name"] for item in table_columns])
     dataframe = pd.DataFrame(table_data, columns=columns)
 
-    dataframe["DATE"] = pd.to_datetime(dataframe.DATE)
+    # dataframe["DATE"] = pd.to_datetime(dataframe.DATE)
     dataframe = dataframe.set_index("DATE").sort_index()
 
-    dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
+    # dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
 
     return dataframe

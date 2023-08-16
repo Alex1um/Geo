@@ -180,8 +180,14 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         regr_fig['data'][0]['y'] = y
         regr_fig['data'][0]['x'] = x
 
+        print("y = ", y)
+        print('x = ', x)
+
         x_len = len(x)
         A = np.vstack([np.array(range(x_len)), np.ones(x_len)]).T
+
+        print(A)
+
         m, c = np.linalg.lstsq(A, np.array(y), rcond=None)[0]
         regr_fig['data'][1]['x'] = [min(x), max(x)]
         regr_fig['data'][1]['y'] = [c, m * (x_len - 1) + c]
