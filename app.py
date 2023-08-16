@@ -167,13 +167,12 @@ def callback_on_table_submit(_, date: list[str], q_col: str, p_col: str, p0_col:
     dataframe.columns = dataframe_source.iloc[start - 1]
     dataframe = dataframe[[*date, q_col, p_col, p0_col]]
     dataframe["DATE"] = dataframe[date].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+    dataframe.drop(date, axis=1, inplace=True)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
     dataframe = dataframe.set_index("DATE").sort_index()
-    # dataframe = dataframe.loc[:, [q_col, p_col, p0_col]]
-    # dataframe = dataframe.rename({q_col: "Q", p_col: "P", p0_col: "P0"})
-    # new_dataframe = pyfunc.transform_to_dataframe(dataframe, dataframe.columns)
-    # table = pylayoutfunc.create_table_layout(new_dataframe, "output-table")
-    #
+    dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0"})
+    dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
+
     table = dash_table.DataTable(dataframe.to_dict("records"), id="output-table")
 
     return [
@@ -306,7 +305,7 @@ def on_graph_select(bt, fig: dict):
     data_range = fig["layout"]["xaxis"]["range"]
     if "W" not in dataframe:
         dataframe = makeHolla(dataframe)
-    df = dataframe[data_range[0] : data_range[1]]
+    df = dataframe[data_range[0]: data_range[1]]
     return [fig, {
         'data': [
             {'x': df["W"], 'y': df["HI"], 'type': 'line', 'name': 'HI'},

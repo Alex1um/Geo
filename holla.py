@@ -6,9 +6,9 @@ import numpy as np
 # output data: <pandas.DataFrame> с добавленными столбцами ["Q_м3_мес", "W", "dP", 'HI", "DHI"]
 def makeHolla(dataframe):
     df = dataframe
-    df.insert(len(df.columns), "Q_м3_мес", np.array(df['Q_м3_сут']))
-    df.insert(len(df.columns), "W", np.cumsum(np.array(df['Q_м3_мес'])))
-    df.insert(len(df.columns), "dP", np.array(df['Р_заб'] - np.array(df['Р_пласт'])))
+    df.insert(len(df.columns), "Q_1", np.array(df['Q']))
+    df.insert(len(df.columns), "W", np.cumsum(np.array(df['Q_1'])))
+    df.insert(len(df.columns), "dP", np.array(df['P'] - np.array(df['P_0'])))
     df.insert(len(df.columns), "HI", np.cumsum(np.array(df['dP'])))
     DHI = np.zeros(len(df))
     for i in range(0, len(df)-1):
