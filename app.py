@@ -137,7 +137,7 @@ def callback_start(value: int):
     prevent_initial_call=True
 )
 def callback_start_next(date, q_col, p_col, p0_col, table_start):
-    disabled = not all((date, q_col, p_col, p0_col))
+    disabled = not all((date, q_col, p_col))
     outline = disabled
     return [
         disabled,
@@ -154,6 +154,7 @@ def callback_start_next(date, q_col, p_col, p0_col, table_start):
     Input("table-begin-submit", "n_clicks"),
     [
         State("select-date", "value"),
+        State("select-date-type", "value"),
         State("select-q", "value"),
         State("select-p", "value"),
         State("select-p0", "value"),
@@ -161,17 +162,22 @@ def callback_start_next(date, q_col, p_col, p0_col, table_start):
     ],
     prevent_initial_call=True,
 )
-def callback_on_table_submit(_, date: list[str], q_col: str, p_col: str, p0_col: str, start: int):
+def callback_on_table_submit(_, date: list[str], date_type: str, q_col: str, p_col: str, p0_col: str, start: int):
     global dataframe, dataframe_source
     dataframe = dataframe_source.iloc[start:]
-    dataframe.columns = dataframe_source.iloc[start - 1]
-    dataframe = dataframe[[*date, q_col, p_col, p0_col]]
-    dataframe["DATE"] = dataframe[date].apply(lambda x: ' '.join(x.astype(str)), axis=1)
-    dataframe.drop(date, axis=1, inplace=True)
-    dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
-    dataframe = dataframe.set_index("DATE").sort_index()
+    if start > 0:
+        dataframe.columns = dataframe_source.iloc[start - 1]
+    cols = list(filter(bool, [*date, q_col, p_col, p0_col]))
+    dataframe = dataframe[cols]
+    if date_type == "Date":
+        dataframe["DATE-MERGED"] = dataframe[date].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+        dataframe.drop(date, axis=1, inplace=True)
+        dataframe["DATE-MERGED"] = dataframe["DATE-MERGED"].apply(pd.to_datetime)
+        dataframe = dataframe.set_index("DATE-MERGED").sort_index()
+    else:
+        dataframe = dataframe.set_index(date).sort_index()
     dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0"})
-    dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
+    # dataframe = dataframe.apply(pd.to_numeric, errors="coerce")
 
     table = dash_table.DataTable(dataframe.to_dict("records"), id="output-table")
 
@@ -225,11 +231,11 @@ def callback_visualize(_, table_data, table_columns, graph_selector):
         fig = make_subplots(specs=[[{"secondary_y": True}]])
 
         fig.add_trace(
-            go.Scatter(x=dataframe.index, y=dataframe["Pressure"], name="yaxis data"),
+            go.Scatter(x=dataframe.index, y=dataframe["P"], name="yaxis data"),
             secondary_y=False,
         )
         fig.add_trace(
-            go.Scatter(x=dataframe.index, y=dataframe['FlowRate'], name="yaxis2 data", opacity=0.5),
+            go.Scatter(x=dataframe.index, y=dataframe['Q'], name="yaxis2 data", opacity=0.5),
             secondary_y=True,
         )
 

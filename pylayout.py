@@ -85,7 +85,12 @@ TABLE_BEGIN = dbc.Container(
         ),
         dbc.Row(
             [
-                dbc.Col(dcc.Dropdown(id="select-date", multi=True)),
+                dbc.Col(
+                    [
+                        dbc.Row(dcc.Dropdown(id="select-date", multi=True)),
+                        dbc.Row(dbc.RadioItems(id="select-date-type", options=["Time", "Date"], value="Date")),
+                    ],
+                ),
                 dbc.Col(dcc.Dropdown(id="select-q")),
                 dbc.Col(dcc.Dropdown(id="select-p")),
                 dbc.Col(dcc.Dropdown(id="select-p0")),
