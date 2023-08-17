@@ -1,26 +1,10 @@
-import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
-import plotly.io as pio
-import pylayout
-from dash import dcc, html, Input, Output, State
-from pathlib import Path
-import plotly.graph_objects as go
-from dash import dash_table
-from plotly.subplots import make_subplots
-import numpy as np
-from holla import makeHolla
-from typing import Callable
-import base64
-import io
-from two_tangs import makeTangs
 from dash_app import app
-from components.start import MAIN_SECTION, PAGE_HEADER
-from components.bootstrap import *
-from components.table_config_dialog import UPLOAD_MODAL
+from components import *
 
-dataframe_source: pd.DataFrame = None
-dataframe: pd.DataFrame = None
+# dataframe_source: pd.DataFrame = None
+# dataframe: pd.DataFrame = None
 
 # APP
 # app = dash.Dash(

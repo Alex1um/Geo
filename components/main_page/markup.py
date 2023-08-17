@@ -1,11 +1,22 @@
-from dash import dash_table
+from dash import dash_table, html
 from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
+
 from components.upload import UPLOAD_COMPONENT
-from components.main import MAIN_CONTENT
-from dash_app import app
 
-
+MAIN_CONTENT = html.Div(
+    [
+        MAIN_TABLE := dash_table.DataTable(
+            id="table-main_page",
+            style_table={"display": "block"}
+        ),
+        REASSIGN_BUTTON := dbc.Button(
+            "Reassign Columns"
+        )
+    ],
+    id="main_page-content",
+    style={"display": "none"}
+)
 PAGE_HEADER = dbc.Container(
     children=
     [
@@ -17,32 +28,17 @@ PAGE_HEADER = dbc.Container(
             "TechnoHack 2023"
         ),
         html.A(
-            "GitHub", href="https://github.com/Alex1um/Geo>GitHub"
+            "GitHub", href="https://github.com/Alex1um/Geo"
         ),
     ],
     fluid=False,
     className="d-flex flex-column justify-content-center text-center",
 )
-
 MAIN_SECTION = html.Section(
     children=[
         UPLOAD_COMPONENT,
         MAIN_CONTENT,
     ],
     className="container-fluid text-center",
-    id="main-section"
+    id="main_page-section"
 )
-
-
-@app.callback(
-    [
-        Output(UPLOAD_COMPONENT, "className"),
-    ],
-    Input(MAIN_CONTENT, "style"),
-    State(UPLOAD_COMPONENT, "className"),
-    prevent_initial_call=True,
-)
-def on_upload_hide(new_style, class_name):
-    return [
-        class_name.replace("d-flex", "d-none"),
-    ]

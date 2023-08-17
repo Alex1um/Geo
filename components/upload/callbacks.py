@@ -1,31 +1,13 @@
-from dash import html, dcc, Input, Output, State
-import dash_bootstrap_components as dbc
-from dash_app import app
-import pandas as pd
 import base64
-from components.main import MAIN_TABLE
-from components.table_config_dialog import UPLOAD_MODAL
-from components.table_config_dialog import table_start
 import io
 
+import pandas as pd
+from dash import Output, Input, State
 
-UPLOAD_COMPONENT = dbc.Container(
-    [
-        UPLOAD_AREA := dcc.Upload(
-            [
-                upload_button := dbc.Button(
-                    "Drag and Drop or select table",
-                    outline=False,
-                    className="text-center",
-                    id="table-upload-button"
-                )
-            ],
-            id="table-upload",
-        ),
-    ],
-    className="container-sm border border-primary-subtle d-flex justify-content-center align-items-center",
-    style={"height": "25vh", "width": "50vw"},
-)
+from components.main_page import MAIN_TABLE
+from components.main_table_modal import UPLOAD_MODAL, table_start
+from components.upload import UPLOAD_AREA
+from dash_app import app
 
 
 @app.callback(
