@@ -20,7 +20,7 @@ app.layout = dbc.Container(
         BOOTSTRAP_JS,
         PAGE_HEADER,
         MAIN_SECTION,
-        UPLOAD_MODAL,
+        CONFIG_MODAL,
         # pylayout.HTML_TITLE,
         # pylayout.HTML_ROW_BUTTON_UPLOAD,
         # pylayout.TABLE_BEGIN,
