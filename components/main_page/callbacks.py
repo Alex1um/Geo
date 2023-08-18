@@ -12,7 +12,6 @@ from typing import Union, Literal
     [
         Output(MAIN_COMPONENT, "className"),
         Output(UPLOAD_COMPONENT, "className"),
-        Output(MAIN_TABLE, "style_data_conditional"),
         Output(MAIN_TABLE, "data"),
     ],
     [
@@ -32,53 +31,43 @@ def on_config_ok(
     main_table_data,
 ):
     start_row: int = table_config["start_row"]
-    date_colls_names: list[str] = table_config["cols_date"]
+    date_colls_names: list[str] | str = table_config["cols_date"]
     date_col_type: Union[Literal["Date"], Literal["Time"]] = table_config["date_type"]
     q_col: str = table_config["col_q"]
     p_col: str = table_config["col_p"]
     nd_col: str = table_config["col_nd"]
+    p0_col: str = table_config["col_p0"]
+    
     dataframe = pd.DataFrame(main_table_data)
     if start_row > 0:
         dataframe.columns = dataframe.iloc[start_row - 1]
     else:
         dataframe.columns = dataframe.columns
     dataframe = dataframe.iloc[start_row:]
-
-    style_data_conditional=[
-        *[{
-            "if": {
-                "column_id": col_date_component
-            },
-            "backgroundColor": "gray",
-        } for col_date_component in date_colls_names],
-        {
-            "if": {
-                "column_id": q_col
-            },
-            "backgroundColor": "gray",
-        },
-        {
-            "if": {
-                "column_id": p_col
-            },
-            "backgroundColor": "gray",
-        },
-    ]
-
-    if nd_col:
-        style_data_conditional.append(
-            {
-                "if": {
-                    "column_id": nd_col
-                },
-                "backgroundColor": "gray",
-            }
-        )
     
+    cols = [q_col, p_col, nd_col, p0_col]
+    if isinstance(date_colls_names, list):
+        cols.extend(date_colls_names)
+    else:
+        cols.append(date_colls_names)
+    cols = list(filter(bool, cols))
+    dataframe = dataframe[cols]
+    if date_col_type == "Date":
+        dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+        dataframe.drop(date_colls_names, axis=1, inplace=True)
+        dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
+        # dataframe = dataframe.set_index("DATE").sort_index()
+    else:
+        # dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+        dataframe = dataframe.rename(columns={date_colls_names: "DATE"})
+        dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime, unit="s")
+
+        # dataframe = dataframe.set_index(date_colls_names).sort_index()
+    dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
+
     return [
         main_classes.replace("d-none", "d-flex"),
         upload_classes.replace("d-flex", "d-none"),
-        style_data_conditional,
         dataframe.to_dict("records"),
     ]
 
