@@ -2,14 +2,20 @@ from dash import dash_table, html
 from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 
+
+
 MAIN_COMPONENT = html.Div(
     [
         dbc.Card(
             [
                 dbc.CardBody(
                     [
+                        SOURCE_TABLE := dcc.Store(id="source-table", storage_type="memory"),
                         MAIN_TABLE := dash_table.DataTable(
-                            id="table-main_page",
+                            id="table-main-page",
+                            editable=True,
+                            page_size=10,
+                            style_table={"overflowX": "auto"},
                         ),
                         dbc.Container(
                             [
@@ -23,10 +29,54 @@ MAIN_COMPONENT = html.Div(
                 ),
             ],
         ),
+        dbc.Card(
+            [
+                dbc.CardBody(
+                    [
+                        MAIN_PLOT_UPDATE := dbc.Button(
+                            "Update",
+                        ),
+                        MAIN_PLOT := dcc.Graph(
+                            id="main-plot"
+                        )
+                    ]
+                )
+            ]
+        ),
+        dbc.Card(
+            [
+                dbc.CardBody(
+                    [
+                        dcc.Tabs(
+                            [
+                                dcc.Tab(
+                                    [
+                                        "1"
+                                    ],
+                                    label="Hall",
+                                ),
+                                dcc.Tab(
+                                    [
+                                        "2"
+                                    ],
+                                    label="SRT test",
+                                ),
+                                dcc.Tab(
+                                    [
+                                        "..."
+                                    ],
+                                    label="...",
+                                ),
+                            ]
+                        )
+                    ]
+                )
+            ]
+        )
     ],
     id="main_page-content",
-    className="d-none flex-column",
-    # className="d-flex flex-column",
+    # className="d-none flex-column",
+    className="d-flex flex-column row-gap-2",
 )
 
 

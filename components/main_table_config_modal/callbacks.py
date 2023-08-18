@@ -2,44 +2,89 @@ import pandas as pd
 from dash import Output, Input, State
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
-    TABLE_PREVIEW, TABLE_START
-from components.main_page.markup import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT
+    PREVIEW_TABLE, TABLE_START, TABLE_CONFIG, COL_DATE_TYPE
+from components.main_page.markup import SOURCE_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
 from dash_app import app
-import io
-import base64
-
-
-@app.callback(
-    [
-        Output(CONFIG_MODAL, "is_open"),
-        Output(TABLE_START, "value"),
-    ],
-    [
-        Input(MAIN_TABLE, "data"),
-    ],
-    prevent_initial_call=True,
-)
-def on_data_upload(_):
-    return [
-        True,
-        0
-    ]
+from typing import Union, Literal
 
 
 @app.callback(
     [
         Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(TABLE_START, "value"),
+        Output(COL_DATE, "value"),
+        Output(COL_DATE_TYPE, "value"),
+        Output(COL_Q, "value", allow_duplicate=True),
+        Output(COL_P, "value", allow_duplicate=True),
+        Output(COL_ND, "value", allow_duplicate=True),
     ],
     [
         Input(BT_CANCEL, "n_clicks"),
-        Input(BT_OK, "n_clicks"),
+    ],
+    State(TABLE_CONFIG, "data"),
+    prevent_initial_call=True,
+)
+def on_cancel(_, current_config: dict):
+    ...
+    if current_config:
+        return [
+            False,
+            current_config["start_row"],
+            current_config["cols_date"],
+            current_config["date_type"],
+            current_config["col_q"],
+            current_config["col_p"],
+            current_config.get("col_md", None),
+        ]
+    else:
+        return [
+            False,
+            0,
+            None,
+            "Date",
+            None,
+            None,
+            None,
+        ]
+
+
+@app.callback(
+    [
+        Output(TABLE_CONFIG, "data"),
+        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+    ],
+    Input(BT_OK, "n_clicks"),
+    [
+        State(TABLE_START, "value"),
+        State(COL_DATE, "value"),
+        State(COL_DATE_TYPE, "value"),
+        State(COL_Q, "value"),
+        State(COL_P, "value"),
+        State(COL_ND, "value"),
     ],
     prevent_initial_call=True,
 )
-def callback_to_close_modal(cancel_n: int, ok_n: int):
-    ...
+def on_ok(
+    _,
+    start_row: int,
+    date_colls_names: list[str],
+    date_col_type: Union[Literal["Date"], Literal["Time"]],
+    q_col: str,
+    p_col: str,
+    nd_col: str,
+):
+    data = {
+        "col_q": q_col,
+        "col_p": p_col,
+        "start_row": start_row,
+        "cols_date": date_colls_names,
+        "date_type": date_col_type,
+    }
+    if nd_col:
+        data["col_nd"] = nd_col
     return [
-        False
+        data,
+        False,
     ]
 
 
@@ -66,23 +111,32 @@ def check_ok(col_p_val, col_q_val, col_date_val, col_nd_val):
 
 @app.callback(
     [
-        Output(TABLE_PREVIEW, "data"),
+        Output(PREVIEW_TABLE, "data"),
         Output(COL_DATE, "options"),
         Output(COL_Q, "options"),
         Output(COL_P, "options"),
         Output(COL_ND, "options"),
-        Output(COL_DATE, "value"),
-        Output(COL_Q, "value"),
-        Output(COL_P, "value"),
-        Output(COL_ND, "value"),
+        Output(COL_DATE, "value", allow_duplicate=True),
+        Output(COL_Q, "value", allow_duplicate=True),
+        Output(COL_P, "value", allow_duplicate=True),
+        Output(COL_ND, "value", allow_duplicate=True),
     ],
-    Input(TABLE_START, "value"),
-    State(TABLE_START, "value"),
-    State(MAIN_TABLE, "derived_virtual_data"),
-    State(TABLE_PREVIEW, "data"),
+    [
+        Input(TABLE_START, "value"),
+        Input(SOURCE_TABLE, "data"),
+    ],
+    [
+        State(TABLE_START, "value"),
+        State(PREVIEW_TABLE, "data"),
+    ],
     prevent_initial_call=True,
 )
-def on_start_change(new_start, old_start, all_data, preview_data):
+def on_start_change_or_init_on_source_data(
+    new_start,
+    all_data, 
+    old_start,
+    preview_data
+):
     dataframe_source = pd.DataFrame(all_data)
     data = []
     cols = []
@@ -104,4 +158,20 @@ def on_start_change(new_start, old_start, all_data, preview_data):
         None,
         None,
         None,
+    ]
+
+
+@app.callback(
+    [
+        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+    ],
+    [
+        Input(REASSIGN_BUTTON, "n_clicks"),
+        Input(SOURCE_TABLE, "data"),
+    ],
+    prevent_initial_call=True,
+)
+def modal_open_callback(bt_n_clicks: int, source_data):
+    return [
+        True
     ]

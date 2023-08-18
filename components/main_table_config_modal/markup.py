@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 
 _CONFIG_MODAL_CONTENT = dbc.Container(
     [
+        TABLE_CONFIG := dcc.Store(id="table-config", storage_type="memory"),
         dbc.Row(
             [
                 dbc.Col(
@@ -19,7 +20,7 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
             [
                 dbc.Col(
                     [
-                        TABLE_PREVIEW := dash_table.DataTable(
+                        PREVIEW_TABLE := dash_table.DataTable(
                             id="upload-modal-table",
                             style_table={"overflowX": "auto"},
                             page_size=10,
