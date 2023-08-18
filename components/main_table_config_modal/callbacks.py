@@ -69,19 +69,18 @@ def on_ok(
     start_row: int,
     date_colls_names: list[str],
     date_col_type: Union[Literal["Date"], Literal["Time"]],
-    q_col: str,
-    p_col: str,
+    col_q: str,
+    col_p: str,
     nd_col: str,
 ):
     data = {
-        "col_q": q_col,
-        "col_p": p_col,
+        "col_q": col_q,
+        "col_p": col_p,
+        "col_nd": nd_col,
         "start_row": start_row,
         "cols_date": date_colls_names,
         "date_type": date_col_type,
     }
-    if nd_col:
-        data["col_nd"] = nd_col
     return [
         data,
         False,

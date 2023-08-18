@@ -1,6 +1,6 @@
 from dash import Input, Output, State, dcc, html
 from dash_app import app
-from components.main_table_config_modal import CONFIG_MODAL, BT_OK, COL_DATE, COL_DATE_TYPE, COL_ND, COL_P, COL_Q, TABLE_START
+from components.main_table_config_modal import BT_OK, TABLE_CONFIG
 from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, SOURCE_TABLE
 import base64
 import pandas as pd
@@ -16,33 +16,27 @@ from typing import Union, Literal
         Output(MAIN_TABLE, "data"),
     ],
     [
-        Input(BT_OK, "n_clicks"),
+        Input(TABLE_CONFIG, "data"),
     ],
     [
         State(MAIN_COMPONENT, "className"),
         State(UPLOAD_COMPONENT, "className"),
-        State(TABLE_START, "value"),
-        State(COL_DATE, "value"),
-        State(COL_DATE_TYPE, "value"),
-        State(COL_Q, "value"),
-        State(COL_P, "value"),
-        State(COL_ND, "value"),
         State(SOURCE_TABLE, "data"),
     ],
     prevent_initial_call=True,
 )
 def on_config_ok(
-    _,
+    table_config: dict,
     main_classes: str,
     upload_classes: str,
-    start_row: int,
-    date_colls_names: list[str],
-    date_col_type: Union[Literal["Date"], Literal["Time"]],
-    q_col: str,
-    p_col: str,
-    nd_col: str,
     main_table_data,
 ):
+    start_row: int = table_config["start_row"]
+    date_colls_names: list[str] = table_config["cols_date"]
+    date_col_type: Union[Literal["Date"], Literal["Time"]] = table_config["date_type"]
+    q_col: str = table_config["col_q"]
+    p_col: str = table_config["col_p"]
+    nd_col: str = table_config["col_nd"]
     dataframe = pd.DataFrame(main_table_data)
     if start_row > 0:
         dataframe.columns = dataframe.iloc[start_row - 1]
