@@ -1,6 +1,8 @@
 from dash import dash_table, html
 from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
+from components.hall_tab import HALL_TAB
+from components.srt_tab import SRT_TAB
 
 
 
@@ -51,13 +53,13 @@ MAIN_COMPONENT = html.Div(
                             [
                                 dcc.Tab(
                                     [
-                                        "1"
+                                        HALL_TAB,
                                     ],
                                     label="Hall",
                                 ),
                                 dcc.Tab(
                                     [
-                                        "2"
+                                        SRT_TAB,
                                     ],
                                     label="SRT test",
                                 ),
@@ -75,8 +77,8 @@ MAIN_COMPONENT = html.Div(
         )
     ],
     id="main_page-content",
-    # className="d-none flex-column",
-    className="d-flex flex-column row-gap-2",
+    className="d-none flex-column",
+    # className="d-flex flex-column row-gap-2",
 )
 
 

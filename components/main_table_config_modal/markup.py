@@ -1,5 +1,5 @@
 from dash import dash_table
-from dash import dcc, Output, State
+from dash import dcc, html
 from dash_app import app
 import dash_bootstrap_components as dbc
 
@@ -34,7 +34,8 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                 dbc.Col("Date fields"),
                 dbc.Col("Q"),
                 dbc.Col("P"),
-                dbc.Col("Р_0")
+                dbc.Col("Nozzle diameter"),
+                dbc.Col("P_0"),
             ],
             className="mt-2",
         ),
@@ -74,6 +75,11 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                 dbc.Col(
                     [
                         COL_ND := dcc.Dropdown(id="select-nozzle-diameter"),
+                    ],
+                ),
+                dbc.Col(
+                    [
+                        COL_P0 := dcc.Dropdown(id="select-p0"),
                     ],
                 ),
             ]
