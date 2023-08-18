@@ -3,13 +3,13 @@ from dash import dcc, Output, State
 from dash_app import app
 import dash_bootstrap_components as dbc
 
-_UPLOAD_MODAL_CONTENT = dbc.Container(
+_CONFIG_MODAL_CONTENT = dbc.Container(
     [
         dbc.Row(
             [
                 dbc.Col(
                     [
-                        table_start := dbc.Input(type="number", id="upload-modal-select-start", value=0),
+                        TABLE_START := dbc.Input(type="number", id="upload-modal-select-start", value=0),
                     ],
                 ),
             ],
@@ -19,7 +19,7 @@ _UPLOAD_MODAL_CONTENT = dbc.Container(
             [
                 dbc.Col(
                     [
-                        table_preview := dash_table.DataTable(
+                        TABLE_PREVIEW := dash_table.DataTable(
                             id="upload-modal-table",
                             style_table={"overflowX": "auto"},
                             page_size=10,
@@ -43,12 +43,12 @@ _UPLOAD_MODAL_CONTENT = dbc.Container(
                     [
                         dbc.Row(
                             [
-                                col_date := dcc.Dropdown(id="select-date", multi=True),
+                                COL_DATE := dcc.Dropdown(id="select-date", multi=True),
                             ]
                         ),
                         dbc.Row(
                             [
-                                col_date_type := dcc.RadioItems(
+                                COL_DATE_TYPE := dcc.RadioItems(
                                     id="select-date-type",
                                     options=["Time", "Date"],
                                     value="Date",
@@ -62,17 +62,17 @@ _UPLOAD_MODAL_CONTENT = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        col_q := dcc.Dropdown(id="select-q"),
+                        COL_Q := dcc.Dropdown(id="select-q"),
                     ],
                 ),
                 dbc.Col(
                     [
-                        col_p := dcc.Dropdown(id="select-p")
+                        COL_P := dcc.Dropdown(id="select-p")
                     ],
                 ),
                 dbc.Col(
                     [
-                        col_nd := dcc.Dropdown(id="select-nozzle-diameter"),
+                        COL_ND := dcc.Dropdown(id="select-nozzle-diameter"),
                     ],
                 ),
             ]
@@ -83,7 +83,7 @@ _UPLOAD_MODAL_CONTENT = dbc.Container(
     fluid=True,
 )
 
-UPLOAD_MODAL = dbc.Modal(
+CONFIG_MODAL = dbc.Modal(
     [
         dbc.ModalHeader(
             [
@@ -94,17 +94,17 @@ UPLOAD_MODAL = dbc.Modal(
             close_button=False,
         ),
         dbc.ModalBody(
-            children=_UPLOAD_MODAL_CONTENT,
+            children=_CONFIG_MODAL_CONTENT,
 
         ),
         dbc.ModalFooter(
             [
-                bt_cancel := dbc.Button(
+                BT_CANCEL := dbc.Button(
                     "Cancel",
                     color="secondary",
                     id="upload-modal-bt-cancel",
                 ),
-                bt_ok := dbc.Button(
+                BT_OK := dbc.Button(
                     "OK",
                     color="primary",
                     outline=True,
