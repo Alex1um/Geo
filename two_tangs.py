@@ -1,8 +1,10 @@
 import numpy as np
+import pandas as pd
 
 
-def makeTangs(x, y):
-    dots = np.array(sorted(zip(x, y)))
+def makeTangs(x_date, y, x_type="s"):
+    x = np.array(x_date, dtype=f"datetime64[{x_type}]").astype(np.int64)
+    dots = np.sort(np.column_stack((x, y)), axis=0)
 
     left = np.array([])
     right = np.array([])
@@ -19,6 +21,7 @@ def makeTangs(x, y):
             # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
 
             y_left = np.zeros_like(x)
+            # y_left = np.full_like(x, x.min())
             for j in range(len(x)):
                 y_left[j] = k_left * x[j] + m_left
 
@@ -33,6 +36,7 @@ def makeTangs(x, y):
             # print('x: ', dots[:i, 0], '\ny: ', dots[:i, 1], '\ntrend: ', left_trend)
 
             y_right = np.zeros_like(x)
+            # y_right = np.full_like(x, x.min())
             for j in range(len(x)):
                 y_right[j] = k_right * x[j] + m_right
 
@@ -61,7 +65,7 @@ def makeTangs(x, y):
         m2 = right[1]
         y_ = (m1 * k2 - m2 * k1) / (k2 - k1)
         x_ = (y_ - m1) / k1
-        cross = [x_, y_]
+        cross = [pd.to_datetime(x_, unit=x_type), y_]
     # print(cross)
     else:
         y_left = np.zeros_like(x)
