@@ -3,6 +3,7 @@ from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 from components.hall_tab import HALL_TAB
 from components.srt_tab import SRT_TAB
+import plotly.graph_objects as go
 
 
 
@@ -35,12 +36,13 @@ MAIN_COMPONENT = html.Div(
             [
                 dbc.CardBody(
                     [
-                        MAIN_PLOT_UPDATE := dbc.Button(
-                            "Update",
+                        dcc.Loading(
+                            [
+                                MAIN_PLOT := dcc.Graph(
+                                    id="main-plot"
+                                )
+                            ],
                         ),
-                        MAIN_PLOT := dcc.Graph(
-                            id="main-plot"
-                        )
                     ]
                 )
             ]

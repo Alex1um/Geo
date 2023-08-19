@@ -1,11 +1,12 @@
 from dash import Input, Output, State, dcc, html
 from dash_app import app
 from components.main_table_config_modal import BT_OK, TABLE_CONFIG
-from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, SOURCE_TABLE
+from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, SOURCE_TABLE, MAIN_PLOT
 import base64
 import pandas as pd
 import io
 from typing import Union, Literal
+import plotly.graph_objects as go
 
 
 @app.callback(
@@ -98,4 +99,41 @@ def on_upload(content, filename, filedate):
 
     return [
         dataframe_source.to_dict("records"),
+    ]
+
+from components.hall_tab import HALL_GRAPH
+from components.srt_tab import P_FRAC
+
+@app.callback(
+    [
+        Output(MAIN_PLOT, "figure")
+    ],
+    [
+        Input(MAIN_TABLE, "data"),
+        Input(P_FRAC, "value"),
+    ],
+    [
+        State(MAIN_PLOT, "figure"),
+    ],
+    prevent_initial_call=True,
+)
+def main_graph_update(table_data, p_frac, old_fig):
+    
+    dataframe = pd.DataFrame(table_data)
+    dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
+    dataframe = dataframe.set_index("DATE").sort_index()
+    
+    data = [
+        go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
+        for col in dataframe.columns
+    ]
+    if p_frac:
+        data.append(
+            go.Scatter(x=[dataframe.index.min(), dataframe.index.max()], y=[p_frac, p_frac], mode="lines", name="P_frac")
+            )
+    
+    fig = go.Figure(data)
+
+    return [ 
+        fig
     ]

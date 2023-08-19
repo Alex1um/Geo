@@ -7,30 +7,62 @@ import dash_bootstrap_components as dbc
 
 SRT_PLOTS = dbc.CardGroup(
     [
-        dbc.Card(
+        dbc.Row(
             [
-                dbc.CardBody(
+                dbc.Col(
                     [
-                        CHOOSE_GRAPH := dcc.Graph(
-                            id="srt-choose-graph",
-                            )
+                        dbc.Card(
+                            [
+                                dbc.CardBody(
+                                    [
+                                        P_FRAC := dbc.Input(
+                                            id="p-frac-input",
+                                            type="number",
+                                            value=0,
+                                            step=0.01
+                                        )
+                                    ]
+                                )
+                            ],
+                            # className="d-inline",
+                        ),
                     ],
-                ),
-            ],
-        ),
-        dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        SRT_GRAPH := dcc.Graph(
-                            id="srt-graph"
-                        )
-                    ]
+                    className="d-flex justify-content-center",
                 )
-            ]
-        )
+            ],
+            className="container-fluid",
+        ),
+        dbc.Row(
+            [
+                dbc.Card(
+                    [
+                        dbc.CardBody(
+                            [
+                                CHOOSE_GRAPH := dcc.Graph(
+                                    id="srt-choose-graph",
+                                    )
+                            ],
+                        ),
+                    ],
+                    className="col",
+                ),
+                dbc.Card(
+                    [
+                        dbc.CardBody(
+                            [
+                                SRT_GRAPH := dcc.Graph(
+                                    id="srt-graph"
+                                )
+                            ]
+                        )
+                    ],
+                    className="col",
+                )
+            ],
+            className="gap-3"
+        ),
     ],
-    className="d-none gap-2 mt-3"
+    className="d-none gap-3 mx-2 mt-3"
 )
 
 SRT_TAB = html.Div(
