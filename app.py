@@ -253,7 +253,7 @@ def callback_visualize(_, table_data, table_columns, graph_selector):
                 )
             ),
             yaxis2=dict(
-                title="Flow Rate",
+                title="<b>Flow Rate</b>",
                 titlefont=dict(
                     color="#ff7f0e"
                 ),
