@@ -22,7 +22,7 @@ import io
         Input(START_BUTTON, "n_clicks")
     ],
     [
-        State(SOURCE_TABLE, "derived_virtual_data"),
+        State(SOURCE_TABLE, "data"),
         State(MAIN_TABLE_CONFIG, "data"),
         State(START_COMPONENT, "className"),
         State(SRT_PLOTS, "className"),
@@ -44,14 +44,19 @@ def on_start_button(_, src_table, src_config, class_start: str, class_srt: str):
         Output(SRT_GRAPH, "figure", allow_duplicate=True),
     ],
     [
-        Input(SRT_TABLE, "data"),
+        Input(SRT_TABLE_CONFIG, "data"),
     ],
     [
-        State(SRT_TABLE_CONFIG, "data"),
+        State(SRT_TABLE, "data"),
     ],
     prevent_initial_call=True,
 )
-def on_setup(_, data, main_table_data: str, table_config: str):
+def on_setup(table_config, main_table_data):
+
+    if not main_table_data or not table_config:
+        return [
+            go.Figure(), go.Figure()
+        ]
 
     start_row: int = table_config["start_row"]
     date_colls_names: list[str] | str = table_config["cols_date"]
@@ -82,9 +87,9 @@ def on_setup(_, data, main_table_data: str, table_config: str):
             dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
 
         # dataframe = dataframe.set_index(date_colls_names).sort_index()
-    dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
+    dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P"})
 
-    dataframe = pd.DataFrame(data)
+    # dataframe = pd.DataFrame(data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
     dataframe = dataframe.set_index("DATE").sort_index()
 
