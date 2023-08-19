@@ -18,7 +18,7 @@ app.layout = dbc.Container(
     [
         BOOTSTRAP_CSS,
         BOOTSTRAP_JS,
-        TABLE_CONFIG,
+        MAIN_TABLE_CONFIG,
         SOURCE_TABLE,
         PAGE_HEADER,
         MAIN_SECTION,
