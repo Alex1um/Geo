@@ -7,11 +7,11 @@ from components.main_page.markup import MAIN_COMPONENT, UPLOAD_COMPONENT, REASSI
 from components.memory import SOURCE_TABLE, MAIN_TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal
+from components.hall_tab import START_BUTTON as HALL_START_BUTTON
 
 
 @app.callback(
     [
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
         Output(TABLE_START, "value"),
     ],
     [
@@ -21,15 +21,12 @@ from typing import Union, Literal
     prevent_initial_call=True,
 )
 def on_cancel(_, current_config: dict):
-    ...
     if current_config:
         return [
-            False,
             current_config["start_row"],
         ]
     else:
         return [
-            False,
             0,
         ]
 
@@ -37,7 +34,6 @@ def on_cancel(_, current_config: dict):
 @app.callback(
     [
         Output(MAIN_TABLE_CONFIG, "data"),
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
     ],
     Input(BT_OK, "n_clicks"),
     [
@@ -72,7 +68,6 @@ def on_ok(
     }
     return [
         data,
-        False,
     ]
 
 
@@ -104,11 +99,11 @@ def check_ok(col_p_val, col_q_val, col_date_val):
         Output(COL_P, "options"),
         Output(COL_ND, "options"),
         Output(COL_P0, "options"),
-        Output(COL_DATE, "value", allow_duplicate=True),
-        Output(COL_Q, "value", allow_duplicate=True),
-        Output(COL_P, "value", allow_duplicate=True),
-        Output(COL_ND, "value", allow_duplicate=True),
-        Output(COL_P0, "value", allow_duplicate=True),
+        Output(COL_DATE, "value"),
+        Output(COL_Q, "value"),
+        Output(COL_P, "value"),
+        Output(COL_ND, "value"),
+        Output(COL_P0, "value"),
     ],
     [
         Input(TABLE_START, "value"),
@@ -171,18 +166,26 @@ def on_start_change_or_init_on_source_data(
 
 @app.callback(
     [
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(CONFIG_MODAL, "is_open"),
     ],
     [
         Input(REASSIGN_BUTTON, "n_clicks"),
         Input(SOURCE_TABLE, "data"),
+        Input(BT_OK, "n_clicks"),
+        Input(BT_CANCEL, "n_clicks"),
+        Input(HALL_START_BUTTON, "n_clicks")
     ],
     prevent_initial_call=True,
 )
-def modal_open_triggers(bt_n_clicks: int, source_data):
-    return [
-        True
-    ]
+def modal_open_close_triggers(bt_n_clicks: int, source_data, ok_clicks, cancel_clicks, hall_start_button):
+    if ctx.triggered_id in {REASSIGN_BUTTON.id, SOURCE_TABLE.id}:
+        return [
+            True
+        ]
+    else:
+        return [
+            False
+        ]
 
 
 @app.callback(
@@ -196,16 +199,14 @@ def on_type_change(
     return date_cols and len(date_cols) > 1
 # Union[Literal['auto'], Literal['s'], Literal['h'], Literal['D'], Literal['M'], Literal['Y']]
 
-from components.hall_tab import START_BUTTON as SRT_START_BUTTON
 
 
 @app.callback(
     [
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
         Output(COL_P0, "className"),
     ],
     [
-        Input(SRT_START_BUTTON, "n_clicks"),
+        Input(HALL_START_BUTTON, "n_clicks"),
         Input(COL_P0, "value"),
     ],
     [
@@ -217,10 +218,8 @@ from components.hall_tab import START_BUTTON as SRT_START_BUTTON
 def on_invalid_hall_start_and_edit(n_clicks, current_value, current_classes: str, is_opened):
     if current_value and "is-invalid" in current_classes:
         current_classes.removesuffix(" is-invalid")
-    elif ctx.triggered_id == SRT_START_BUTTON.id:
+    elif ctx.triggered_id == HALL_START_BUTTON.id:
         current_classes += " is-invalid"
-        is_opened = True
     return [
-        is_opened,
         current_classes,
     ]
