@@ -46,7 +46,7 @@ SRT_PLOTS = dbc.CardGroup(
                                                     "Drag and Drop or select another srt table",
                                                     outline=False,
                                                     className="text-center",
-                                                    id="table-upload-button"
+                                                    id="srt-table-upload-button"
                                                 )
                                             ]
                                         ),

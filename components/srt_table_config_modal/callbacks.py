@@ -1,8 +1,8 @@
 import pandas as pd
 from dash import Output, Input, State, ctx
 
-from components.srt_table_config_modal import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, \
-    PREVIEW_TABLE, TABLE_START, COL_DATE_TYPE
+from components.srt_table_config_modal import SRT_CONFIG_MODAL, SRT_BT_CANCEL, SRT_BT_OK, SRT_COL_P, SRT_COL_Q, SRT_COL_DATE, \
+    SRT_PREVIEW_TABLE, SRT_TABLE_START, SRT_COL_DATE_TYPE
 from components.memory import SRT_TABLE, SRT_TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal
@@ -10,16 +10,16 @@ from typing import Union, Literal
 
 @app.callback(
     [
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
-        Output(TABLE_START, "value"),
+        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(SRT_TABLE_START, "value"),
     ],
     [
-        Input(BT_CANCEL, "n_clicks"),
+        Input(SRT_BT_CANCEL, "n_clicks"),
     ],
     State(SRT_TABLE_CONFIG, "data"),
     prevent_initial_call=True,
 )
-def on_cancel(_, current_config: dict):
+def srt_on_cancel(_, current_config: dict):
     ...
     if current_config:
         return [
@@ -36,19 +36,19 @@ def on_cancel(_, current_config: dict):
 @app.callback(
     [
         Output(SRT_TABLE_CONFIG, "data"),
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
     ],
-    Input(BT_OK, "n_clicks"),
+    Input(SRT_BT_OK, "n_clicks"),
     [
-        State(TABLE_START, "value"),
-        State(COL_DATE, "value"),
-        State(COL_DATE_TYPE, "value"),
-        State(COL_Q, "value"),
-        State(COL_P, "value"),
+        State(SRT_TABLE_START, "value"),
+        State(SRT_COL_DATE, "value"),
+        State(SRT_COL_DATE_TYPE, "value"),
+        State(SRT_COL_Q, "value"),
+        State(SRT_COL_P, "value"),
     ],
     prevent_initial_call=True,
 )
-def on_ok(
+def srt_on_ok(
     _,
     start_row: int,
     date_colls_names: list[str],
@@ -71,17 +71,17 @@ def on_ok(
 
 @app.callback(
     [
-        Output(BT_OK, "disabled"),
-        Output(BT_OK, "outline"),
+        Output(SRT_BT_OK, "disabled"),
+        Output(SRT_BT_OK, "outline"),
     ],
     [
-        Input(COL_P, "value"),
-        Input(COL_Q, "value"),
-        Input(COL_DATE, "value"),
+        Input(SRT_COL_P, "value"),
+        Input(SRT_COL_Q, "value"),
+        Input(SRT_COL_DATE, "value"),
     ],
     prevent_initial_call=True,
 )
-def check_ok(col_p_val, col_q_val, col_date_val):
+def srt_check_ok(col_p_val, col_q_val, col_date_val):
     is_ready = not (col_p_val and col_q_val and col_date_val)
     return [
         is_ready,
@@ -91,26 +91,26 @@ def check_ok(col_p_val, col_q_val, col_date_val):
 
 @app.callback(
     [
-        Output(PREVIEW_TABLE, "data"),
-        Output(COL_DATE, "options"),
-        Output(COL_Q, "options"),
-        Output(COL_P, "options"),
-        Output(COL_DATE, "value", allow_duplicate=True),
-        Output(COL_Q, "value", allow_duplicate=True),
-        Output(COL_P, "value", allow_duplicate=True),
+        Output(SRT_PREVIEW_TABLE, "data"),
+        Output(SRT_COL_DATE, "options"),
+        Output(SRT_COL_Q, "options"),
+        Output(SRT_COL_P, "options"),
+        Output(SRT_COL_DATE, "value", allow_duplicate=True),
+        Output(SRT_COL_Q, "value", allow_duplicate=True),
+        Output(SRT_COL_P, "value", allow_duplicate=True),
     ],
     [
-        Input(TABLE_START, "value"),
+        Input(SRT_TABLE_START, "value"),
         Input(SRT_TABLE, "data"),
     ],
     [
-        State(TABLE_START, "value"),
-        State(PREVIEW_TABLE, "data"),
+        State(SRT_TABLE_START, "value"),
+        State(SRT_PREVIEW_TABLE, "data"),
         State(SRT_TABLE_CONFIG, "data"),
     ],
     prevent_initial_call=True,
 )
-def on_start_change_or_init_on_source_data(
+def srt_on_start_change_or_init_on_source_data(
     new_start,
     all_data, 
     old_start,
@@ -150,31 +150,31 @@ def on_start_change_or_init_on_source_data(
         ]
 
 
-from components.srt_tab import SRT_REASSIGN
+from components.srt_tab import SRT_REASSIGN, SRT_UPlOAD
 
 
 @app.callback(
     [
-        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
     ],
     [
         Input(SRT_REASSIGN, "n_clicks"),
-        Input(SRT_TABLE, "data"),
+        Input(SRT_UPlOAD, "contents"),
     ],
     prevent_initial_call=True,
 )
-def modal_open_triggers(bt_n_clicks: int, source_data):
+def srt_modal_open_triggers(bt_n_clicks: int, source_data):
     return [
         True
     ]
 
 
 @app.callback(
-    Output(COL_DATE_TYPE, "disabled"),
-    Input(COL_DATE, "value"),
+    Output(SRT_COL_DATE_TYPE, "disabled"),
+    Input(SRT_COL_DATE, "value"),
     prevent_initial_call=True,
 )
-def on_type_change(
+def srt_on_type_change(
     date_cols: list[str],
 ):
     return date_cols and len(date_cols) > 1
