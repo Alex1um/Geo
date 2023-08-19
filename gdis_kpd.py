@@ -7,6 +7,7 @@ import math
 from mpmath import invertlaplace
 
 
+
 # The Bourdet derivative
 def bourdet_derivative(p,t):
     n = np.size(p)
@@ -51,7 +52,7 @@ def Pwd_dimension(Pwd):
     return part
 
 
-def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, Fcd, Pi, N=50):
+def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     """
 
     :param Tinput: массив времени, datetime
@@ -62,12 +63,12 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, Fcd, Pi, N=50):
     :param k: проницаемость пласта, float
     :param S: скин-фактор, float
     :param Cs: wellbore storage коэффициент, float
-    :param Fcd: безразмерная проницаемость трещины, float
+    :param kfwf: произведение проницаемости трещины на ее раскрытие, float
     :param Pi: пластовое давление, float
     :param N: число точек, int
     :return: Pressure array, Time array
     """
-
+    Fcd = kfwf / (k * xf)
     Ct = 3e-6 / 6894.759  # total compressibility
     mu = 1e-3  # viscosity
 
@@ -76,11 +77,27 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, Fcd, Pi, N=50):
 
     # манипуляции с закачкой
     Q = np.zeros_like(Qinput)
+    tt = np.array([])
     for i in range(len(Qinput)):
         if i == 0:
             Q[i] = Qinput[i]
         else:
             Q[i] = Qinput[i] - Qinput[i - 1]
+
+    # meanrangeQ = np.mean(np.abs(Q))
+    # for i in range(1, len(Qinput)):
+    #     num = round((T[i] - T[i - 1]) / T[-1] * np.abs(Q[i]) / meanrangeQ * 10 + 5)
+    #     if i == 1:
+    #         tt = np.append(tt, np.logspace(start=-1,
+    #                                        stop=np.log10(T[i]),
+    #                                        num=num))
+    #     else:
+    #         tt = np.append(tt, np.logspace(start=np.log10(T[i-1]),
+    #                                        stop=np.log10(T[i]),
+    #                                        num=num))
+    #
+    print(len(tt))
+    # tt = np.sort(tt)
 
     # перевод закачки из м3/сут в м3/с
     Q /= (24 * 3600)
@@ -112,21 +129,25 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, Fcd, Pi, N=50):
 
 
 if __name__ == "__main__":
+    from dash import Dash, dcc, html
+    from plotly.subplots import make_subplots
+    import plotly.graph_objects as go
+
+    # example visualization in Dash.plotly
+    app = Dash(__name__)
+
+    # app.run(debug=True)
+
+    # --------------------------------------------------------------------------------
 
     # Parametrs
     xf = 3.67 * 0.3048           # fracture half-length from ft to m
-
     poro = 0.1          # rock porosity
-
     h = 30 * 0.3048              # total formation thickness from ft to m
-
     k = 386 * 1.02e-15          # permeability m2
     S = 0.294684               # skin factor
     Cs = 0.014 / 6894.759 * 0.158987            # wellbore storage coefficient
-
-    Fc = 1420 * 1.02e-15     # dimension fracture conductivity
-    Fcd = 1             # dimensionless fracture conductivity
-
+    kfwf = 4.40421492e-13
     Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па
 
     Qinput = np.array([789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка в м3/сут
@@ -135,29 +156,54 @@ if __name__ == "__main__":
     Qinput *= 0.158987
     Tinput *= 3600
 
-    N = 100                # кол-во расчетных точек
+    # кол-во расчетных точек
+    N = 40
 
     # применение функции solve_kpd
-    pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, Fcd, Pi, N)
-    print(pressure)
-    print(time)
+    pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+
+    # print(pressure)
+    # print(time)
 
     df = pd.read_excel("saphir2.xlsx", sheet_name="Лист2")
-
-    df_test = pd.read_excel("saphir_test2.xlsx", sheet_name="Лист1")
-
-
-    fig, axs = plt.subplots(2, 1, figsize=[8,5])
-    axs[0].plot(time, pressure, color='red', linewidth=0.5)
-    axs[0].plot(time, np.ones_like(pressure)*Pi, color='blue', linewidth=0.5)
-    axs[1].step((Tinput), Qinput, where='post', color='orange', marker='o')
-
-    Tanaldata = pd.to_datetime(df_test['Time, hr'], unit='h')
-    axs[0].plot(Tanaldata, df_test['Pressure, psia'] * 6894.759 , color='green', linewidth=0.5)
-
-
     Trealdata = pd.to_datetime(df['t'], unit='h')
+    # df_test = pd.read_excel("saphir_test2.xlsx", sheet_name="Лист1")
+    # Tanaldata = pd.to_datetime(df_test['Time, hr'], unit='h')
 
-    axs[0].plot(Trealdata, df['p, Pa'], color='blue', linewidth=1)
+    Tinput = pd.to_datetime(Tinput, unit='s')
 
-    plt.show()
+    # --------------------------------------------------------------------------------
+
+    fig = make_subplots(rows=2, cols=2,
+                        specs=[[{}, {"rowspan": 2}],
+                               [{}, None]],
+                        row_heights=[0.7, 0.3],
+                        column_widths=[0.6, 0.4])
+
+    fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1, )
+
+    fig.add_trace(go.Scatter(x=[1,2], y=[2,1]), row=1, col=2)
+
+
+    app.layout = html.Div([
+        dcc.Graph(figure=fig)
+    ])
+
+    app.run(debug=True)
+
+    # fig, axs = plt.subplots(2, 1, figsize=[8,5])
+    # axs[0].plot(time, pressure, color='red', linewidth=0.5)
+    # axs[0].plot(time, np.ones_like(pressure)*Pi, color='blue', linewidth=0.5)
+    # axs[1].step(Tinput, Qinput, where='post', color='orange', marker='o')
+    #
+    #
+    # axs[0].plot(Tanaldata, df_test['Pressure, psia'] * 6894.759 , color='green', linewidth=0.5)
+    #
+    #
+    #
+    #
+    # axs[0].plot(Trealdata, df['p, Pa'], color='blue', linewidth=1)
+    #
+    # plt.show()
