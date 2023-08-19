@@ -78,8 +78,9 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        COL_P0 := dcc.Dropdown(id="select-p0"),
+                        COL_P0 := dcc.Dropdown(id="select-p0", className="form-control"),
                     ],
+                    className="form-floating",
                 ),
             ]
         ),

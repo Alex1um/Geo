@@ -8,3 +8,4 @@ import components.main_page.callbacks
 import components.main_table_config_modal.callbacks
 import components.hall_tab.callbacks
 import components.srt_tab.callbacks
+import components.srt_tab.callbacks

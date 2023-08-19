@@ -59,7 +59,7 @@ SRT_PLOTS = dbc.CardGroup(
                     className="col",
                 )
             ],
-            className="gap-3"
+            className="gap-3 container-fluid"
         ),
     ],
     className="d-none gap-3 mx-2 mt-3"

@@ -68,7 +68,7 @@ MAIN_COMPONENT = html.Div(
                                     [
                                         "..."
                                     ],
-                                    label="...",
+                                    label="CFP",
                                 ),
                             ]
                         )

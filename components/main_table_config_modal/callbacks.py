@@ -1,5 +1,5 @@
 import pandas as pd
-from dash import Output, Input, State
+from dash import Output, Input, State, ctx
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
     PREVIEW_TABLE, TABLE_START, COL_DATE_TYPE, COL_P0
@@ -179,7 +179,7 @@ def on_start_change_or_init_on_source_data(
     ],
     prevent_initial_call=True,
 )
-def modal_open_callback(bt_n_clicks: int, source_data):
+def modal_open_triggers(bt_n_clicks: int, source_data):
     return [
         True
     ]
@@ -208,4 +208,34 @@ def on_type_change(
     return [
         multi,
         new_value
+    ]
+
+
+from components.hall_tab import START_BUTTON as SRT_START_BUTTON
+
+
+@app.callback(
+    [
+        Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(COL_P0, "className"),
+    ],
+    [
+        Input(SRT_START_BUTTON, "n_clicks"),
+        Input(COL_P0, "value"),
+    ],
+    [
+        State(COL_P0, "className"),
+        State(CONFIG_MODAL, "is_open"),
+    ],
+    prevent_initial_call=True,
+)
+def on_invalid_hall_start_and_edit(n_clicks, current_value, current_classes: str, is_opened):
+    if current_value and "is-invalid" in current_classes:
+        current_classes.removesuffix(" is-invalid")
+    elif ctx.triggered_id == SRT_START_BUTTON.id:
+        current_classes += " is-invalid"
+        is_opened = True
+    return [
+        is_opened,
+        current_classes,
     ]
