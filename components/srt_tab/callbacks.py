@@ -128,8 +128,8 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         regr_fig['data'][0]['x'] = x
         regr_fig['data'][0]['y'] = y
 
-        print("y = ", y)
-        print('x = ', x)
+        print("y = ", y, type(y))
+        print('x = ', x, type(x))
 
         if len(x) >= 4:
             y_left, y_right, cross = makeTangs(x, y)
