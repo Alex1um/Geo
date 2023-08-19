@@ -5,7 +5,7 @@ from dash import Input, Output, State, dcc
 import pandas as pd
 import plotly.graph_objects as go
 from holla import makeHolla
-from components.memory import TABLE_CONFIG
+from components.memory import MAIN_TABLE_CONFIG
 
 
 @app.callback(
@@ -91,7 +91,7 @@ def on_process(_, fig, data):
         Input(START_BUTTON, "n_clicks"),
     ],
     [
-        State(TABLE_CONFIG, "data"),
+        State(MAIN_TABLE_CONFIG, "data"),
         State(START_COMPONENT, "className"),
         State(HALL_PLOTS, "className"),
     ],

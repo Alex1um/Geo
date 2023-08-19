@@ -4,7 +4,7 @@ from dash import Output, Input, State, ctx
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
     PREVIEW_TABLE, TABLE_START, COL_DATE_TYPE, COL_P0
 from components.main_page.markup import MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
-from components.memory import SOURCE_TABLE, TABLE_CONFIG
+from components.memory import SOURCE_TABLE, MAIN_TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal
 
@@ -17,7 +17,7 @@ from typing import Union, Literal
     [
         Input(BT_CANCEL, "n_clicks"),
     ],
-    State(TABLE_CONFIG, "data"),
+    State(MAIN_TABLE_CONFIG, "data"),
     prevent_initial_call=True,
 )
 def on_cancel(_, current_config: dict):
@@ -36,7 +36,7 @@ def on_cancel(_, current_config: dict):
 
 @app.callback(
     [
-        Output(TABLE_CONFIG, "data"),
+        Output(MAIN_TABLE_CONFIG, "data"),
         Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
     ],
     Input(BT_OK, "n_clicks"),
@@ -117,7 +117,7 @@ def check_ok(col_p_val, col_q_val, col_date_val):
     [
         State(TABLE_START, "value"),
         State(PREVIEW_TABLE, "data"),
-        State(TABLE_CONFIG, "data"),
+        State(MAIN_TABLE_CONFIG, "data"),
     ],
     prevent_initial_call=True,
 )
@@ -186,30 +186,15 @@ def modal_open_triggers(bt_n_clicks: int, source_data):
 
 
 @app.callback(
-    [
-        Output(COL_DATE, "multi"),
-        Output(COL_DATE, "value", allow_duplicate=True),
-    ],
-    Input(COL_DATE_TYPE, "value"),
-    State(COL_DATE, "value"),
+    Output(COL_DATE_TYPE, "disabled"),
+    Input(COL_DATE, "value"),
     prevent_initial_call=True,
 )
 def on_type_change(
-    date_col_type: Union[Literal["Date"], Literal["Time"]],
-    current_value: list[str],
+    date_cols: list[str],
 ):
-    multi = date_col_type == "Date"
-    new_value = None
-    if current_value:
-        if multi:
-            new_value = [current_value]
-        else:
-            new_value = current_value[0]
-    return [
-        multi,
-        new_value
-    ]
-
+    return date_cols and len(date_cols) > 1
+# Union[Literal['auto'], Literal['s'], Literal['h'], Literal['D'], Literal['M'], Literal['Y']]
 
 from components.hall_tab import START_BUTTON as SRT_START_BUTTON
 
