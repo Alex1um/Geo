@@ -5,25 +5,22 @@ from dash import Input, Output, State, dcc
 import pandas as pd
 import plotly.graph_objects as go
 from holla import makeHolla
+from components.memory import TABLE_CONFIG
 
 
 @app.callback(
     [
-        Output(START_COMPONENT, "className"),
-        Output(HALL_PLOTS, "className"),
         Output(RANGE_GRAPH, "figure"),
     ],
     [
-        Input(START_BUTTON, "n_clicks"),
+        Input(HALL_PLOTS, "className"),
     ],
     [
         State(MAIN_TABLE, "derived_virtual_data"),
-        State(START_COMPONENT, "className"),
-        State(HALL_PLOTS, "className"),
     ],
     prevent_initial_call=True,
 )
-def on_start(_, data, class_start: str, class_hall: str):
+def on_load(_, data):
 
     dataframe = pd.DataFrame(data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
@@ -47,8 +44,6 @@ def on_start(_, data, class_start: str, class_hall: str):
     fig = go.Figure(data, layout)
     
     return [
-        class_start.replace("d-flex", "d-none"),
-        class_hall.replace("d-none", "d-flex"),
         fig,
     ]
 
@@ -87,4 +82,30 @@ def on_process(_, fig, data):
     }]
 
 
-
+@app.callback(
+    [
+        Output(START_COMPONENT, "className"),
+        Output(HALL_PLOTS, "className"),
+    ],
+    [
+        Input(START_BUTTON, "n_clicks"),
+    ],
+    [
+        State(TABLE_CONFIG, "data"),
+        State(START_COMPONENT, "className"),
+        State(HALL_PLOTS, "className"),
+    ],
+    prevent_initial_call=True,
+)
+def on_start_click(_, config, class_start, class_hall):
+    if config.get("col_p0"):
+        return [
+            class_start.replace("d-flex", "d-none"),
+            class_hall.replace("d-none", "d-flex"),
+        ]
+    else:
+        return [
+            class_start,
+            class_hall
+        ]
+    
