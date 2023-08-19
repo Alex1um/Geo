@@ -101,17 +101,19 @@ def on_start(_, data, class_start: str, class_hall: str):
     [
         Output(CHOOSE_GRAPH, "figure", allow_duplicate=True),
         Output(SRT_GRAPH, "figure", allow_duplicate=True),
+        Output(P_FRAC, "value"),
     ],
     [
         Input(CHOOSE_GRAPH, "clickData"),
     ],
     [
+        State(P_FRAC, "value"),
         State(CHOOSE_GRAPH, "figure"),
         State(SRT_GRAPH, "figure")
     ],
     prevent_initial_call=True,
 )
-def on_graph_click(clickData, fig: dict, regr_fig: dict):
+def on_graph_click(clickData, p_frac: float, fig: dict, regr_fig: dict):
     curves = len(fig['data'])
     if clickData:
         new_x, new_y = clickData['points'][0]['x'], clickData['points'][0]['y']
@@ -148,5 +150,7 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
             regr_fig['data'][3]['x'] = [cross[0]]
             regr_fig['data'][3]['y'] = [cross[1]]
 
-    return fig, regr_fig
+            p_frac = cross[1]
+
+    return fig, regr_fig, p_frac
 
