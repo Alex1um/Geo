@@ -165,27 +165,31 @@ def on_start_change_or_init_on_source_data(
 
 
 @app.callback(
+    Output(CONFIG_MODAL, "is_open"),
     [
-        Output(CONFIG_MODAL, "is_open"),
-    ],
-    [
+        Input(HALL_START_BUTTON, "n_clicks"),
         Input(REASSIGN_BUTTON, "n_clicks"),
         Input(SOURCE_TABLE, "data"),
         Input(BT_OK, "n_clicks"),
         Input(BT_CANCEL, "n_clicks"),
-        Input(HALL_START_BUTTON, "n_clicks")
     ],
+    State(COL_P0, "value"),
     prevent_initial_call=True,
 )
-def modal_open_close_triggers(bt_n_clicks: int, source_data, ok_clicks, cancel_clicks, hall_start_button):
+def modal_open_close_triggers(
+    hall_start_clicks, 
+    reassign_clicks,
+    source_data,
+    ok_clicks,
+    cancel_clicks,
+    p0_val
+):
     if ctx.triggered_id in {REASSIGN_BUTTON.id, SOURCE_TABLE.id}:
-        return [
-            True
-        ]
+        return True
+    elif ctx.triggered_id == HALL_START_BUTTON.id and p0_val is None:
+        return True
     else:
-        return [
-            False
-        ]
+        return False
 
 
 @app.callback(
@@ -198,7 +202,6 @@ def on_type_change(
 ):
     return date_cols and len(date_cols) > 1
 # Union[Literal['auto'], Literal['s'], Literal['h'], Literal['D'], Literal['M'], Literal['Y']]
-
 
 
 @app.callback(
