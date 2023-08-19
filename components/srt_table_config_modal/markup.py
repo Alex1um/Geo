@@ -50,7 +50,7 @@ _SRT_CONFIG_MODAL_CONTENT = dbc.Container(
                                 SRT_COL_DATE_TYPE := dcc.Dropdown(
                                     id="select-srt-date-type",
                                     options=["s", "auto", "h", "D", "M", "Y"],
-                                    value="Date",
+                                    value="s",
                                     className="",
                                 )
                             ]
