@@ -49,13 +49,11 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                         ),
                         dbc.Row(
                             [
-                                COL_DATE_TYPE := dcc.RadioItems(
+                                COL_DATE_TYPE := dcc.Dropdown(
                                     id="select-date-type",
-                                    options=["Time", "Date"],
-                                    value="Date",
-                                    className="form-check",
-                                    inputClassName="form-check-input",
-                                    labelClassName="form-check-label"
+                                    options=["s", "auto", "h", "D", "M", "Y"],
+                                    value="s",
+                                    clearable=False,
                                 )
                             ]
                         ),

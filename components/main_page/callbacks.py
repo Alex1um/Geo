@@ -1,7 +1,7 @@
 from dash import Input, Output, State, dcc, html
 from dash_app import app
 from components.main_table_config_modal import BT_OK
-from components.memory import TABLE_CONFIG, SOURCE_TABLE
+from components.memory import MAIN_TABLE_CONFIG, SOURCE_TABLE
 from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, MAIN_PLOT
 import base64
 import pandas as pd
@@ -17,7 +17,7 @@ import plotly.graph_objects as go
         Output(MAIN_TABLE, "data"),
     ],
     [
-        Input(TABLE_CONFIG, "data"),
+        Input(MAIN_TABLE_CONFIG, "data"),
     ],
     [
         State(MAIN_COMPONENT, "className"),
@@ -47,22 +47,20 @@ def on_config_ok(
         dataframe.columns = dataframe.columns
     dataframe = dataframe.iloc[start_row:]
     
-    cols = [q_col, p_col, nd_col, p0_col]
-    if isinstance(date_colls_names, list):
-        cols.extend(date_colls_names)
-    else:
-        cols.append(date_colls_names)
-    cols = list(filter(bool, cols))
+    cols = list(filter(bool, [*date_colls_names, q_col, p_col, nd_col, p0_col]))
     dataframe = dataframe[cols]
-    if date_col_type == "Date":
+    if len(date_colls_names) > 1:
         dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
         dataframe.drop(date_colls_names, axis=1, inplace=True)
         dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
         # dataframe = dataframe.set_index("DATE").sort_index()
     else:
         # dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
-        dataframe = dataframe.rename(columns={date_colls_names: "DATE"})
-        dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime, unit="s")
+        dataframe = dataframe.rename(columns={date_colls_names[0]: "DATE"})
+        if date_col_type != "auto":
+            dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime, unit=date_col_type)
+        else:
+            dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
 
         # dataframe = dataframe.set_index(date_colls_names).sort_index()
     dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
