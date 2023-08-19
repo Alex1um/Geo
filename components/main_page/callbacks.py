@@ -1,7 +1,8 @@
 from dash import Input, Output, State, dcc, html
 from dash_app import app
-from components.main_table_config_modal import BT_OK, TABLE_CONFIG
-from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, SOURCE_TABLE, MAIN_PLOT
+from components.main_table_config_modal import BT_OK
+from components.memory import TABLE_CONFIG, SOURCE_TABLE
+from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, MAIN_PLOT
 import base64
 import pandas as pd
 import io
