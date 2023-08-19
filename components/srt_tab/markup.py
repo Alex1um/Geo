@@ -34,6 +34,37 @@ SRT_PLOTS = dbc.CardGroup(
         ),
         dbc.Row(
             [
+                dbc.Col(
+                    [
+                        dbc.Card(
+                            [
+                                dbc.CardBody(
+                                    [
+                                        SRT_UPlOAD := dcc.Upload(
+                                            [
+                                                dbc.Button(
+                                                    "Drag and Drop or select another srt table",
+                                                    outline=False,
+                                                    className="text-center",
+                                                    id="table-upload-button"
+                                                )
+                                            ]
+                                        ),
+                                        SRT_REASSIGN := dbc.Button(
+                                            [
+                                                "Edit uploaded table"
+                                            ]
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    ]
+                )
+            ]
+        ),
+        dbc.Row(
+            [
                 dbc.Card(
                     [
                         dbc.CardBody(

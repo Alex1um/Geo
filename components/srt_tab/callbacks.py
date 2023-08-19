@@ -1,31 +1,88 @@
 from components.srt_tab import *
-from components.main_page import MAIN_TABLE
 from dash_app import app
 from dash import Input, Output, State, dcc
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from two_tangs import makeTangs
+from components.memory import SRT_TABLE, SRT_TABLE_CONFIG, MAIN_TABLE_CONFIG, SOURCE_TABLE
+import base64
+import io
+
 
 
 @app.callback(
     [
+        Output(SRT_TABLE, "data", allow_duplicate=True),
+        Output(SRT_TABLE_CONFIG, "data", allow_duplicate=True),
         Output(START_COMPONENT, "className"),
         Output(SRT_PLOTS, "className"),
-        Output(CHOOSE_GRAPH, "figure", allow_duplicate=True),
-        Output(SRT_GRAPH, "figure", allow_duplicate=True),
     ],
     [
-        Input(START_BUTTON, "n_clicks"),
+        Input(START_BUTTON, "n_clicks")
     ],
     [
-        State(MAIN_TABLE, "derived_virtual_data"),
+        State(SOURCE_TABLE, "derived_virtual_data"),
+        State(MAIN_TABLE_CONFIG, "data"),
         State(START_COMPONENT, "className"),
         State(SRT_PLOTS, "className"),
     ],
     prevent_initial_call=True,
 )
-def on_start(_, data, class_start: str, class_hall: str):
+def on_start_button(_, src_table, src_config, class_start: str, class_srt: str):
+    return [
+        src_table,
+        src_config,
+        class_start.replace("d-flex", "d-none"),
+        class_srt.replace("d-none", "d-flex"),
+    ]
+
+
+@app.callback(
+    [
+        Output(CHOOSE_GRAPH, "figure", allow_duplicate=True),
+        Output(SRT_GRAPH, "figure", allow_duplicate=True),
+    ],
+    [
+        Input(SRT_TABLE, "data"),
+    ],
+    [
+        State(SRT_TABLE_CONFIG, "data"),
+    ],
+    prevent_initial_call=True,
+)
+def on_setup(_, data, main_table_data: str, table_config: str):
+
+    start_row: int = table_config["start_row"]
+    date_colls_names: list[str] | str = table_config["cols_date"]
+    date_col_type = table_config["date_type"]
+    q_col: str = table_config["col_q"]
+    p_col: str = table_config["col_p"]
+    
+    dataframe = pd.DataFrame(main_table_data)
+    if start_row > 0:
+        dataframe.columns = dataframe.iloc[start_row - 1]
+    else:
+        dataframe.columns = dataframe.columns
+    dataframe = dataframe.iloc[start_row:]
+    
+    cols = list(filter(bool, [*date_colls_names, q_col, p_col]))
+    dataframe = dataframe[cols]
+    if len(date_colls_names) > 1:
+        dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+        dataframe.drop(date_colls_names, axis=1, inplace=True)
+        dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
+        # dataframe = dataframe.set_index("DATE").sort_index()
+    else:
+        # dataframe["DATE"] = dataframe[date_colls_names].apply(lambda x: ' '.join(x.astype(str)), axis=1)
+        dataframe = dataframe.rename(columns={date_colls_names[0]: "DATE"})
+        if date_col_type != "auto":
+            dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime, unit=date_col_type)
+        else:
+            dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
+
+        # dataframe = dataframe.set_index(date_colls_names).sort_index()
+    dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
 
     dataframe = pd.DataFrame(data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
@@ -90,8 +147,6 @@ def on_start(_, data, class_start: str, class_hall: str):
     fig = go.Figure([selected_points, regr_left, regr_right, cross_point], layout_regression)
     
     return [
-        class_start.replace("d-flex", "d-none"),
-        class_hall.replace("d-none", "d-flex"),
         main_fig,
         fig,
     ]
@@ -154,3 +209,33 @@ def on_graph_click(clickData, p_frac: float, fig: dict, regr_fig: dict):
 
     return fig, regr_fig, p_frac
 
+
+
+
+@app.callback(
+    [
+        Output(SRT_TABLE, "data"),
+    ],
+    Input(SRT_UPlOAD, "contents"),
+    State(SRT_UPlOAD, "filename"),
+    State(SRT_UPlOAD, "last_modified"),
+    prevent_initial_call=True,
+)
+def on_srt_table_upload(content, filename, filedate):
+    # global dataframe_source
+
+    dataframe_source = None
+
+    if content is not None:
+        _, content_string = content.split(",")
+
+        decoded = base64.b64decode(content_string)
+
+        if filename.endswith(".csv"):
+            dataframe_source = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+        elif filename.endswith(".xlsx") or filename.endswith(".xls"):
+            dataframe_source = pd.read_excel(decoded)
+
+    return [
+        dataframe_source.to_dict("records"),
+    ]
