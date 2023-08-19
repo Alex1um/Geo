@@ -13,7 +13,6 @@ MAIN_COMPONENT = html.Div(
             [
                 dbc.CardBody(
                     [
-                        SOURCE_TABLE := dcc.Store(id="source-table", storage_type="session"),
                         MAIN_TABLE := dash_table.DataTable(
                             id="table-main-page",
                             editable=True,

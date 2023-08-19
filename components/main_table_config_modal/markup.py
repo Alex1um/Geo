@@ -5,7 +5,6 @@ import dash_bootstrap_components as dbc
 
 _CONFIG_MODAL_CONTENT = dbc.Container(
     [
-        TABLE_CONFIG := dcc.Store(id="table-config", storage_type="session"),
         dbc.Row(
             [
                 dbc.Col(

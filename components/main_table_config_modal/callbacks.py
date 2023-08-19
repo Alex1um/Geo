@@ -2,8 +2,9 @@ import pandas as pd
 from dash import Output, Input, State
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
-    PREVIEW_TABLE, TABLE_START, TABLE_CONFIG, COL_DATE_TYPE, COL_P0
-from components.main_page.markup import SOURCE_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
+    PREVIEW_TABLE, TABLE_START, COL_DATE_TYPE, COL_P0
+from components.main_page.markup import MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
+from components.memory import SOURCE_TABLE, TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal
 
@@ -12,12 +13,6 @@ from typing import Union, Literal
     [
         Output(CONFIG_MODAL, "is_open", allow_duplicate=True),
         Output(TABLE_START, "value"),
-        Output(COL_DATE, "value"),
-        Output(COL_DATE_TYPE, "value"),
-        Output(COL_Q, "value", allow_duplicate=True),
-        Output(COL_P, "value", allow_duplicate=True),
-        Output(COL_ND, "value", allow_duplicate=True),
-        Output(COL_P0, "value", allow_duplicate=True),
     ],
     [
         Input(BT_CANCEL, "n_clicks"),
@@ -31,23 +26,11 @@ def on_cancel(_, current_config: dict):
         return [
             False,
             current_config["start_row"],
-            current_config["cols_date"],
-            current_config["date_type"],
-            current_config["col_q"],
-            current_config["col_p"],
-            current_config.get("col_md", None),
-            current_config.get("col_p0", None),
         ]
     else:
         return [
             False,
             0,
-            None,
-            "Date",
-            None,
-            None,
-            None,
-            None,
         ]
 
 
@@ -134,6 +117,7 @@ def check_ok(col_p_val, col_q_val, col_date_val):
     [
         State(TABLE_START, "value"),
         State(PREVIEW_TABLE, "data"),
+        State(TABLE_CONFIG, "data"),
     ],
     prevent_initial_call=True,
 )
@@ -141,7 +125,8 @@ def on_start_change_or_init_on_source_data(
     new_start,
     all_data, 
     old_start,
-    preview_data
+    preview_data,
+    current_config,
 ):
     dataframe_source = pd.DataFrame(all_data)
     data = []
@@ -154,19 +139,34 @@ def on_start_change_or_init_on_source_data(
             new_dataframe.columns = dataframe_source.iloc[new_start - 1]
         cols = new_dataframe.columns.array
         data = new_dataframe.to_dict("records")
-    return [
-        data,
-        cols,
-        cols,
-        cols,
-        cols,
-        cols,
-        None,
-        None,
-        None,
-        None,
-        None,
-    ]
+    if current_config and current_config["start_row"] == new_start:
+        return [
+            data,
+            cols,
+            cols,
+            cols,
+            cols,
+            cols,
+            current_config["cols_date"],
+            current_config["col_q"],
+            current_config["col_p"],
+            current_config.get("col_md", None),
+            current_config.get("col_p0", None),
+        ]
+    else:
+        return [
+            data,
+            cols,
+            cols,
+            cols,
+            cols,
+            cols,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]
 
 
 @app.callback(
