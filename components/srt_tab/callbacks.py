@@ -117,10 +117,10 @@ def on_graph_click(clickData, fig: dict, regr_fig: dict):
         new_x, new_y = clickData['points'][0]['x'], clickData['points'][0]['y']
         y: list = fig['data'][-1]['y']
         x: list = fig['data'][-1]['x']
-        if clickData['points'][0]['curveNumber'] != curves - 1:
+        if clickData['points'][0]['curveNumber'] == 0:
             y.append(new_y)
             x.append(new_x)
-        else:
+        elif clickData['points'][0]['curveNumber'] == curves - 1:
             i = x.index(new_x)
             x.pop(i)
             y.pop(i)
