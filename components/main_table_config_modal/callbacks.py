@@ -200,7 +200,7 @@ def modal_open_close_triggers(
 def on_type_change(
     date_cols: list[str],
 ):
-    return date_cols and len(date_cols) > 1
+    return bool(date_cols) and len(date_cols) > 1
 # Union[Literal['auto'], Literal['s'], Literal['h'], Literal['D'], Literal['M'], Literal['Y']]
 
 
