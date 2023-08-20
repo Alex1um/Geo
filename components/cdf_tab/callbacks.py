@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from gdis_kpd import solve_kpd
 from plotly.subplots import make_subplots
+import numpy as np
 
 
 @app.callback(
@@ -60,7 +61,7 @@ def validate_inputs(
     return disabled, disabled
 
 
-app.callback(
+@app.callback(
     [
         Output(MAIN_GRAPH, "figure"),
     ],
@@ -81,6 +82,7 @@ app.callback(
     prevent_initial_call=True,
 )
 def on_all_params(
+    _,
     Cs,
     h,
     k,
@@ -104,8 +106,8 @@ def on_all_params(
     # применение функции solve_kpd
     pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
 
-    df = pd.read_excel("saphir2 (2).xlsx", sheet_name="Лист2")
-    Trealdata = pd.to_datetime(df['t'], unit='h')
+    # df = pd.read_excel("saphir2 (2).xlsx", sheet_name="Лист2")
+    # Trealdata = pd.to_datetime(df['t'], unit='h')
 
     # --------------------------------------------------------------------------------
 
@@ -116,7 +118,7 @@ def on_all_params(
                         row_heights=[0.7, 0.3],
                         column_widths=[0.6, 0.4])
 
-    fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data', mode='markers',
+    fig.add_trace(go.Scatter(x=Tinput, y=dataframe['P'], name='Real Data', mode='markers',
                              marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
                   row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
@@ -130,5 +132,5 @@ def on_all_params(
 
 
     return [
-        go.Figure([])
+        fig
     ]

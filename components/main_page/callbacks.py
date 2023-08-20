@@ -8,6 +8,7 @@ import pandas as pd
 import io
 from typing import Union, Literal
 import plotly.graph_objects as go
+from tools import make_columns_unique
 
 
 @app.callback(
@@ -33,6 +34,7 @@ def on_config_ok(
     main_table_data,
 ):
     start_row: int = table_config["start_row"]
+    start_col: int = table_config["start_col"]
     date_colls_names: list[str] | str = table_config["cols_date"]
     date_col_type: Union[Literal["Date"], Literal["Time"]] = table_config["date_type"]
     q_col: str = table_config["col_q"]
@@ -40,13 +42,14 @@ def on_config_ok(
     nd_col: str = table_config["col_nd"]
     p0_col: str = table_config["col_p0"]
     
-    dataframe = pd.DataFrame(main_table_data)
+    dataframe_src = pd.DataFrame(main_table_data)
+    dataframe = dataframe_src.iloc[start_row:, start_col:]
     if start_row > 0:
-        dataframe.columns = dataframe.iloc[start_row - 1]
+        columns = dataframe_src.iloc[start_row - 1, start_col:]
     else:
-        dataframe.columns = dataframe.columns
-    dataframe = dataframe.iloc[start_row:]
-    
+        columns = dataframe_src.columns
+    dataframe.columns = make_columns_unique(columns)
+
     cols = list(filter(bool, [*date_colls_names, q_col, p_col, nd_col, p0_col]))
     dataframe = dataframe[cols]
     if len(date_colls_names) > 1:

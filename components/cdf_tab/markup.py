@@ -98,7 +98,11 @@ CDF_CONTENT = dbc.CardGroup(
             [
                 dbc.CardBody(
                     [
-                        MAIN_GRAPH := dcc.Graph(id='cdf-graph')
+                        dcc.Loading(
+                            [
+                                MAIN_GRAPH := dcc.Graph(id='cdf-graph')
+                            ]
+                        )
                     ]
                 )
             ]

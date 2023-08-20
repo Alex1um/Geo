@@ -9,7 +9,12 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
             [
                 dbc.Col(
                     [
-                        TABLE_START := dbc.Input(type="number", id="upload-modal-select-start", value=0),
+                        TABLE_START_ROW := dbc.Input(type="number", id="upload-modal-select-start-row", value=0),
+                    ],
+                ),
+                dbc.Col(
+                    [
+                        TABLE_START_COL := dbc.Input(type="number", id="upload-modal-select-start-col", value=0),
                     ],
                 ),
             ],

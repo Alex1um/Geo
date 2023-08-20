@@ -2,17 +2,18 @@ import pandas as pd
 from dash import Output, Input, State, ctx
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
-    PREVIEW_TABLE, TABLE_START, COL_DATE_TYPE, COL_P0
+    PREVIEW_TABLE, TABLE_START_ROW, COL_DATE_TYPE, COL_P0, TABLE_START_COL
 from components.main_page.markup import MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
 from components.memory import SOURCE_TABLE, MAIN_TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal
 from components.hall_tab import START_BUTTON as HALL_START_BUTTON
+from tools import make_columns_unique
 
 
 @app.callback(
     [
-        Output(TABLE_START, "value"),
+        Output(TABLE_START_ROW, "value"),
     ],
     [
         Input(BT_CANCEL, "n_clicks"),
@@ -37,7 +38,8 @@ def on_cancel(_, current_config: dict):
     ],
     Input(BT_OK, "n_clicks"),
     [
-        State(TABLE_START, "value"),
+        State(TABLE_START_ROW, "value"),
+        State(TABLE_START_COL, "value"),
         State(COL_DATE, "value"),
         State(COL_DATE_TYPE, "value"),
         State(COL_Q, "value"),
@@ -50,6 +52,7 @@ def on_cancel(_, current_config: dict):
 def on_ok(
     _,
     start_row: int,
+    start_col: int,
     date_colls_names: list[str],
     date_col_type: Union[Literal["Date"], Literal["Time"]],
     col_q: str,
@@ -63,6 +66,7 @@ def on_ok(
         "col_nd": nd_col,
         "col_p0": p0_col,
         "start_row": start_row,
+        "start_col": start_col,
         "cols_date": date_colls_names,
         "date_type": date_col_type,
     }
@@ -106,35 +110,39 @@ def check_ok(col_p_val, col_q_val, col_date_val):
         Output(COL_P0, "value"),
     ],
     [
-        Input(TABLE_START, "value"),
+        Input(TABLE_START_ROW, "value"),
+        Input(TABLE_START_COL, "value"),
         Input(SOURCE_TABLE, "data"),
     ],
     [
-        State(TABLE_START, "value"),
+        State(TABLE_START_ROW, "value"),
         State(PREVIEW_TABLE, "data"),
         State(MAIN_TABLE_CONFIG, "data"),
     ],
     prevent_initial_call=True,
 )
 def on_start_change_or_init_on_source_data(
-    new_start,
+    new_start_row,
+    new_start_col,
     all_data, 
     old_start,
     preview_data,
     current_config,
 ):
+
     dataframe_source = pd.DataFrame(all_data)
     data = []
     cols = []
-    if new_start >= 0:
-        new_dataframe = dataframe_source.iloc[new_start:new_start + 5]
-        if new_start == 0:
-            new_dataframe.columns = dataframe_source.columns
+    if new_start_row >= 0:
+        new_dataframe = dataframe_source.iloc[new_start_row:new_start_row + 5, new_start_col:]
+        if new_start_row == 0:
+            columns = dataframe_source.columns[new_start_col:]
         else:
-            new_dataframe.columns = dataframe_source.iloc[new_start - 1]
+            columns = dataframe_source.iloc[new_start_row - 1, new_start_col:]
+        new_dataframe.columns = make_columns_unique(columns)
         cols = new_dataframe.columns.array
         data = new_dataframe.to_dict("records")
-    if current_config and current_config["start_row"] == new_start:
+    if current_config and current_config["start_row"] == new_start_row:
         return [
             data,
             cols,
