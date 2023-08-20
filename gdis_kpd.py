@@ -6,7 +6,6 @@ import math
 from mpmath import invertlaplace
 
 
-
 # The Bourdet derivative
 def bourdet_derivative(p,t):
     n = np.size(p)
@@ -87,7 +86,7 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
             Qt = np.append(Qt, T[i])
             j += 1
         else:
-            # if Qinput[i] != np.sum(Q):
+            if Qinput[i] != np.sum(Q):
                 Q = np.append(Q, Qinput[i] - np.sum(Q[:i-1]))
                 Qt = np.append(Qt, T[i])
                 j += 1
@@ -117,6 +116,11 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
 
     # массив времени
     tt = np.linspace(1, T[-1]+1, N)
+
+    # # hardcode добавления точек для более детального LOG графика
+    # tt = np.append(tt, np.logspace(np.log10(84781), np.log10(tt[-1]), 100))
+    # tt = np.sort(tt)
+    # print(len(tt))
 
     kvd_ind_start = -1
     for i in range(len(tt)):
@@ -150,20 +154,32 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     #     print(i, ", ", end='')
     # print(']')
 
-    np.save("tt.npy", tt)
-    np.save("p.npy", p)
+    # np.save("tt.npy", tt)
+    # np.save("p.npy", p)
 
-    # tt = np.load("tt.npy")
-    # p = np.load("p.npy")
+    # tt = np.load("tt_n250_s0.2947.npy")
+    # p = np.load("p_n250_s0.2947.npy")
 
-    Pstart = p[kvd_ind_start]
-    deltaP = np.zeros_like(p[kvd_ind_start:]) - Pstart + p[kvd_ind_start:]
-    logdP = bourdet_derivative(deltaP, tt[kvd_ind_start:])
+    def log_data(S, Cd, Fcd, tD, tt):
+        # Building a solution with a variation of the skin factor
+        pwd_sol = pwd(S, Cd, Fcd, tD)  # more time lost here
+        deltaP = np.array(Pwd_dimension(pwd_sol, k, h).tolist(), dtype=float)
+        log_derivative_P = bourdet_derivative(deltaP, tt)
+        return deltaP, log_derivative_P
+
+    deltaP, log_derivative_P = log_data(S, Cd, Fcd, td1, tt)
+
+    # log_p_start = p[kvd_ind_start]
+    # deltaP = p[kvd_ind_start:] - p[kvd_ind_start]
+    # deltaP[0] = 1
+    t_for_log = tt[kvd_ind_start:] - tt[kvd_ind_start]
+    # t_for_log[0] = 1
+    # logdP = bourdet_derivative(deltaP, t_for_log)
 
     # обратный перевод в datetime
     time = pd.to_datetime(tt, unit='s')
 
-    return p, time, deltaP, logdP
+    return p, time #, deltaP, log_derivative_P, t_for_log
 
 
 if __name__ == "__main__":
@@ -177,19 +193,19 @@ if __name__ == "__main__":
     # --------------------------------------------------------------------------------
 
     # Parametrs
-    xf = 3.67 * 0.3048           # fracture half-length from ft to m = 1.118
+    xf = 1.118          # fracture half-length from ft to m = 1.118
     poro = 0.1          # rock porosity
-    h = 30 * 0.3048              # total formation thickness from ft to m
-    k = 386 * 1.02e-15          # permeability m2
+    h = 9.144              # total formation thickness from ft to m
+    k = 3.9372e-13          # permeability m2
     S = 0.294684               # skin factor
-    Cs = 0.014 / 6894.759 * 0.158987    #  0,0000003228275274016104      # wellbore storage coefficient
-    kfwf = 4.40421492e-13
-    Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па    26958000
+    Cs = 3.228e-07    #  0,0000003228275274016104      # wellbore storage coefficient
+    kfwf = 4.404e-13
+    Pi = 26958714.5       # пластовое давление из psia в Па    26958000
 
     Qinput = np.array([789, 789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка тут в барелл/сут
     Tinput = np.array([0, 0.5, 1.005, 2.393, 3.800, 5.167, 7.1, 9.484, 11.488, 13.414, 15.804, 18.501, 20.968, 23.55, 41.55])   # время в часах
 
-    # Qinput = np.array([789, 789, 850, 816, 2450, 2410, 976], dtype=float)    # закачка тут в барелл/сут
+    # Qinput = np.array([789,x 789, 850, 816, 2450, 2410, 976], dtype=float)    # закачка тут в барелл/сут
     # Tinput = np.array([0, 0.5, 1.005, 2.393, 3.800, 5.167, 7.1])   # время в часах
 
     Tinput = pd.to_datetime(Tinput, unit='h')
@@ -197,36 +213,38 @@ if __name__ == "__main__":
     Qinput *= 0.158987      # закачка в м3/сут
 
     # кол-во расчетных точек
-    N = 200
+    N = 20
 
     # применение функции solve_kpd
-    pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+    pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
 
     df = pd.read_excel("saphir2.xlsx", sheet_name="Лист2")
     Trealdata = pd.to_datetime(df['t'], unit='h')
 
     # --------------------------------------------------------------------------------
 
-
-    fig = make_subplots(rows=2, cols=2,
-                        specs=[[{}, {"rowspan": 2}],
-                               [{}, None]],
-                        row_heights=[0.7, 0.3],
-                        column_widths=[0.6, 0.4])
+    fig = make_subplots(rows=2, cols=1,
+                        # specs=[[{}, {"rowspan": 2}],
+                        #        [{}, None]],
+                        row_heights=[0.7, 0.3])
+                        # column_widths=[0.6, 0.4])
 
     fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data', mode='markers',
-                             marker={'line' : {'color' : '#87cefa', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'},
+                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'},
                              ),
                   row=1, col=1)
-    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Solve Data'), row=1, col=1)
     fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
 
-    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
-
-    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
-
-    fig.update_xaxes(type="log", row=1, col=2)
-    fig.update_yaxes(type="log", row=1, col=2)
+    # fig.add_trace(go.Scatter(x=time_for_log, y=deltaP), row=1, col=2)
+    #
+    # fig.add_trace(go.Scatter(x=time_for_log, y=log_derP), row=1, col=2)
+    #
+    # fig.update_xaxes(type="log", row=1, col=2)
+    # fig.update_yaxes(type="log", row=1, col=2)
+    #
+    # fig.update_xaxes(type="log", row=2, col=2)
+    # fig.update_yaxes(type="log", row=2, col=2)
 
 
     app.layout = html.Div([

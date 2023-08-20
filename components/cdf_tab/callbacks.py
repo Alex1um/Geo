@@ -101,7 +101,7 @@ def on_all_params(
     Qinput = dataframe["Q"]
     Tinput = dataframe.index
 
-    N = 20
+    N = 250
 
     # применение функции solve_kpd
     pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
