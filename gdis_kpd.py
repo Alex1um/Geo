@@ -85,7 +85,7 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
             Q = np.append(Q, Qinput[i])
             j += 1
         else:
-            if Qinput[i] != Q[j-1]:
+            if Qinput[i] != np.sum(Q):
                 Q = np.append(Q, Qinput[i] - np.sum(Q[:i-1]))
                 j += 1
 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     h = 30 * 0.3048              # total formation thickness from ft to m
     k = 386 * 1.02e-15          # permeability m2
     S = 0.294684               # skin factor
-    Cs = 0.014 / 6894.759 * 0.158987            # wellbore storage coefficient
+    Cs = 0.014 / 6894.759 * 0.158987    #  0,0000003228275274016104      # wellbore storage coefficient
     kfwf = 4.40421492e-13
     Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па
 
