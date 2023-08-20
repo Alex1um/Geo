@@ -15,13 +15,17 @@ SRT_PLOTS = dbc.CardGroup(
                             [
                                 dbc.CardBody(
                                     [
+                                        dbc.Label(
+                                            "P frac"
+                                        ),
                                         P_FRAC := dbc.Input(
                                             id="p-frac-input",
                                             type="number",
                                             value=0,
                                             step=0.01
                                         )
-                                    ]
+                                    ],
+                                    className="center-text text-center"
                                 )
                             ],
                             # className="d-inline",
@@ -43,7 +47,7 @@ SRT_PLOTS = dbc.CardGroup(
                                         SRT_UPlOAD := dcc.Upload(
                                             [
                                                 dbc.Button(
-                                                    "Drag and Drop or select another srt table",
+                                                    "Upload SRT",
                                                     outline=False,
                                                     className="text-center",
                                                     id="srt-table-upload-button"
@@ -55,13 +59,16 @@ SRT_PLOTS = dbc.CardGroup(
                                                 "Edit uploaded table"
                                             ]
                                         )
-                                    ]
+                                    ],
+                                    className="d-flex gap-3 justify-content-center"
                                 )
                             ]
                         )
-                    ]
+                    ],
+                    className="d-flex justify-content-center",
                 )
-            ]
+            ],
+            className="container-fluid",
         ),
         dbc.Row(
             [

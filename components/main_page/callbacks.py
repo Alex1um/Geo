@@ -103,7 +103,6 @@ def on_upload(content, filename, filedate):
         dataframe_source.to_dict("records"),
     ]
 
-from components.hall_tab import HALL_GRAPH
 from components.srt_tab import P_FRAC
 
 @app.callback(
@@ -124,18 +123,66 @@ def main_graph_update(table_data, p_frac, old_fig):
     dataframe = pd.DataFrame(table_data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
     dataframe = dataframe.set_index("DATE").sort_index()
-    
-    data = [
-        go.Scatter(x=dataframe.index, y=dataframe[col], mode="lines", name=col)
-        for col in dataframe.columns
-    ]
-    if p_frac:
-        data.append(
-            go.Scatter(x=[dataframe.index.min(), dataframe.index.max()], y=[p_frac, p_frac], mode="lines", name="P_frac")
-            )
-    
-    fig = go.Figure(data)
 
+    fig = go.Figure(layout=go.Layout(**{
+        "yaxis": {
+            "title": "Q",
+        },
+        "yaxis2": {
+            "title": "P",
+            "overlaying": "y",
+            "side": "right",
+            "anchor": "x",
+        },
+        "yaxis3": {
+            "title": "m",
+            "overlaying": "y",
+            "side": "left",
+            "anchor": "free",
+        },
+    }))
+    fig.add_trace(
+        go.Scatter(
+            x=dataframe.index,
+            y=dataframe["Q"],
+            name="Flow Rate",
+    ))
+    fig.add_trace(
+        go.Scatter(
+            x=dataframe.index,
+            y=dataframe["P"],
+            name="Pressure",
+            yaxis="y2",
+    ))
+    if "P0" in dataframe.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=dataframe.index,
+                y=dataframe["P0"],
+                name="P0",
+                yaxis="y2"
+        ))
+    if "ND" in dataframe.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=dataframe.index,
+                y=dataframe["ND"],
+                name="Nuzzle Diameter",
+                yaxis="y3",
+        ))
+        fig.update_layout({
+        "xaxis": {
+            "domain": [0.065, 1],
+        }})
+    if p_frac:
+        fig.add_trace(
+            go.Scatter(
+                x=[dataframe.index.min(), dataframe.index.max()],
+                y=[p_frac, p_frac],
+                mode="lines",
+                name="P frac",
+                yaxis="y2",
+        ))
     return [ 
         fig
     ]
