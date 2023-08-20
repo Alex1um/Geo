@@ -4,6 +4,8 @@ from dash import Input, Output, State
 from components.main_page import MAIN_TABLE as DATA_TABLE
 import pandas as pd
 import plotly.graph_objects as go
+from gdis_kpd import solve_kpd
+from plotly.subplots import make_subplots
 
 
 @app.callback(
@@ -79,20 +81,53 @@ app.callback(
     prevent_initial_call=True,
 )
 def on_all_params(
-    cs,
+    Cs,
     h,
     k,
     kfwf,
-    m,
-    pi,
-    s,
+    poro,
+    Pi,
+    S,
     xf,
     data
 ):
 
     dataframe = pd.DataFrame(data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
-    dataframe = dataframe.set_index("DATE").sort_index()[["P", "Q", "P_0"]]
+    dataframe = dataframe.set_index("DATE").sort_index()
+
+    Qinput = dataframe["Q"]
+    Tinput = dataframe.index
+
+    N = 40
+
+    # применение функции solve_kpd
+    pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+
+    df = pd.read_excel("saphir2 (2).xlsx", sheet_name="Лист2")
+    Trealdata = pd.to_datetime(df['t'], unit='h')
+
+    # --------------------------------------------------------------------------------
+
+
+    fig = make_subplots(rows=2, cols=2,
+                        specs=[[{}, {"rowspan": 2}],
+                               [{}, None]],
+                        row_heights=[0.7, 0.3],
+                        column_widths=[0.6, 0.4])
+
+    fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data', mode='markers',
+                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
+                  row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
+
+    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
+    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
+
+    fig.update_xaxes(type="log", row=1, col=2)
+    fig.update_yaxes(type="log", row=1, col=2)
+
 
     return [
         go.Figure([])
