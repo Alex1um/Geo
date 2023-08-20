@@ -10,33 +10,24 @@ from typing import Union, Literal
 
 @app.callback(
     [
-        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
-        Output(SRT_TABLE_START, "value"),
+        Output(SRT_TABLE_START, "value")
     ],
     [
         Input(SRT_BT_CANCEL, "n_clicks"),
+        Input(SRT_TABLE_CONFIG, "data"),
     ],
-    State(SRT_TABLE_CONFIG, "data"),
     prevent_initial_call=True,
 )
 def srt_on_cancel(_, current_config: dict):
-    ...
     if current_config:
-        return [
-            False,
-            current_config["start_row"],
-        ]
+        return current_config["start_row"],
     else:
-        return [
-            False,
-            0,
-        ]
+        return 0,
 
 
 @app.callback(
     [
         Output(SRT_TABLE_CONFIG, "data"),
-        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
     ],
     Input(SRT_BT_OK, "n_clicks"),
     [
@@ -65,7 +56,6 @@ def srt_on_ok(
     }
     return [
         data,
-        False,
     ]
 
 
@@ -95,9 +85,9 @@ def srt_check_ok(col_p_val, col_q_val, col_date_val):
         Output(SRT_COL_DATE, "options"),
         Output(SRT_COL_Q, "options"),
         Output(SRT_COL_P, "options"),
-        Output(SRT_COL_DATE, "value", allow_duplicate=True),
-        Output(SRT_COL_Q, "value", allow_duplicate=True),
-        Output(SRT_COL_P, "value", allow_duplicate=True),
+        Output(SRT_COL_DATE, "value"),
+        Output(SRT_COL_Q, "value"),
+        Output(SRT_COL_P, "value"),
     ],
     [
         Input(SRT_TABLE_START, "value"),
@@ -155,18 +145,21 @@ from components.srt_tab import SRT_REASSIGN, SRT_UPlOAD
 
 @app.callback(
     [
-        Output(SRT_CONFIG_MODAL, "is_open", allow_duplicate=True),
+        Output(SRT_CONFIG_MODAL, "is_open")
     ],
     [
         Input(SRT_REASSIGN, "n_clicks"),
         Input(SRT_UPlOAD, "contents"),
+        Input(SRT_BT_OK, "n_clicks"),
+        Input(SRT_BT_CANCEL, "n_clicks"),
     ],
     prevent_initial_call=True,
 )
-def srt_modal_open_triggers(bt_n_clicks: int, source_data):
-    return [
-        True
-    ]
+def srt_modal_open_triggers(*_):
+    if ctx.triggered_id in {SRT_REASSIGN.id, SRT_UPlOAD.id}:
+        return True,
+    else:
+        return False,
 
 
 @app.callback(
@@ -177,4 +170,4 @@ def srt_modal_open_triggers(bt_n_clicks: int, source_data):
 def srt_on_type_change(
     date_cols: list[str],
 ):
-    return date_cols and len(date_cols) > 1
+    return bool(date_cols) and len(date_cols) > 1
