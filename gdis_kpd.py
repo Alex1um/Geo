@@ -42,7 +42,7 @@ def pwd(S, Cd, Fcd, tD, degree=6, method='stehfest'):
 
 # Solution in dimensional parameters
 def Pwd_dimension(Pwd):
-    q = -1  # unit flow rate m3/s
+    q = 1  # unit flow rate m3/s
     B = 1  # volume factor
     mu = 1e-3  # viscosity
 
@@ -66,7 +66,7 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     :param kfwf: произведение проницаемости трещины на ее раскрытие, float
     :param Pi: пластовое давление, float
     :param N: число точек, int
-    :return: Pressure array, Time array
+    :return: Pressure array, Time array, delta Pressure array, log derivative Pressure array
     """
     Fcd = kfwf / (k * xf)
     Ct = 3e-6 / 6894.759  # total compressibility
@@ -78,11 +78,17 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     # манипуляции с закачкой
     Q = np.zeros_like(Qinput)
     tt = np.array([])
+    kvd_time_start = -1
     for i in range(len(Qinput)):
         if i == 0:
             Q[i] = Qinput[i]
         else:
             Q[i] = Qinput[i] - Qinput[i - 1]
+
+        if Qinput[i] == 0 and kvd_time_start == -1:
+            kvd_time_start = T[i]
+        if Qinput[i] != 0 and kvd_time_start != -1:
+            kvd_time_start = -1
 
     # meanrangeQ = np.mean(np.abs(Q))
     # for i in range(1, len(Qinput)):
@@ -96,7 +102,7 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     #                                        stop=np.log10(T[i]),
     #                                        num=num))
     #
-    print(len(tt))
+    # print(len(tt))
     # tt = np.sort(tt)
 
     # перевод закачки из м3/сут в м3/с
@@ -105,6 +111,11 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     # массив времени
     tt = np.linspace(1, T[-1]+1, N)
 
+    kvd_ind_start = -1
+    for i in range(len(tt)):
+        if tt[i] >= kvd_time_start and kvd_ind_start == -1:
+            kvd_ind_start = i
+
     # обезразмеривание и Cd
     Cd = Cs / (2 * np.pi * poro * Ct * h * (xf ** 2))
 
@@ -112,20 +123,44 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     p = np.zeros_like(tt) + Pi
 
     # главный расчетный цикл по ступеням закачки
-    for i in range(0, len(Q)):
-        print(round(i / (len(Q)) * 100), "%")
-        after = tt >= T[i]
-        tt1 = tt[after] - T[i]
-        td1 = (k * tt1) / (poro * mu * Ct * (xf ** 2))
-        pwd1 = pwd(S, Cd, Fcd, td1)
-        pwd1 = np.array(pwd1.tolist(), dtype=float)
-        p[after] += Q[i] * Pwd_dimension(pwd1)
-    print(100, "%")
+    # for i in range(0, len(Q)):
+    #     print(round(i / (len(Q)) * 100), "%")
+    #     after = tt >= T[i]
+    #     tt1 = tt[after] - T[i]
+    #     td1 = (k * tt1) / (poro * mu * Ct * (xf ** 2))
+    #     pwd1 = pwd(S, Cd, Fcd, td1)
+    #     pwd1 = np.array(pwd1.tolist(), dtype=float)
+    #     p[after] -= Q[i] * Pwd_dimension(pwd1)
+    # print(100, "%")
+
+    tt = np.array([1.0, 3836.3846153846152, 7671.7692307692305, 11507.153846153846, 15342.538461538461, 19177.923076923078,
+          23013.30769230769, 26848.692307692305, 30684.076923076922, 34519.46153846154, 38354.846153846156,
+          42190.230769230766, 46025.61538461538, 49861.0, 53696.38461538461, 57531.76923076923, 61367.153846153844,
+          65202.53846153846, 69037.92307692308, 72873.30769230769, 76708.69230769231, 80544.07692307692,
+          84379.46153846153, 88214.84615384616, 92050.23076923077, 95885.61538461538, 99721.0, 103556.38461538461,
+          107391.76923076922, 111227.15384615384, 115062.53846153845, 118897.92307692308, 122733.30769230769,
+          126568.6923076923, 130404.07692307692, 134239.46153846153, 138074.84615384616, 141910.23076923075,
+          145745.61538461538, 149581.0])
+
+    p = np.array([26954280.8144143, 26434470.252233457, 26399742.89518385, 26405712.922623422, 25427357.131658737,
+         25355867.573864568, 25317554.450483505, 26123417.679987136, 26190439.2279156, 26224109.460986204,
+         26235316.892299447, 26251480.57728031, 26254936.752421543, 26260839.231092878, 26261514.355615646,
+         26287001.827897854, 26290894.45255737, 26291566.53694003, 26309782.677265055, 26310700.11781603,
+         26313699.560711943, 26313747.046480596, 26313537.220194597, 26832174.302518718, 26858078.097053878,
+         26872207.73074058, 26881734.409450937, 26888941.652309243, 26894668.87988621, 26899239.73582232,
+         26903161.28473018, 26906573.64454287, 26909475.290901355, 26912189.854606807, 26914464.41997173,
+         26916523.73674312, 26918369.57409275, 26920069.89452821, 26921559.22323988, 26923118.288254134])
+
+
+    dP = np.zeros_like(p[kvd_ind_start:]) + Pi - p[kvd_ind_start:]
+    logdP = bourdet_derivative(dP, tt[kvd_ind_start:])
+
+
 
     # обратный перевод в datetime
     time = pd.to_datetime(tt, unit='s')
 
-    return p, time
+    return p, time, dP, logdP
 
 
 if __name__ == "__main__":
@@ -135,8 +170,6 @@ if __name__ == "__main__":
 
     # example visualization in Dash.plotly
     app = Dash(__name__)
-
-    # app.run(debug=True)
 
     # --------------------------------------------------------------------------------
 
@@ -150,29 +183,24 @@ if __name__ == "__main__":
     kfwf = 4.40421492e-13
     Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па
 
-    Qinput = np.array([789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка в м3/сут
+    Qinput = np.array([789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка тут в барелл/сут
     Tinput = np.array([0, 1.005, 2.393, 3.800, 5.167, 7.1, 9.484, 11.488, 13.414, 15.804, 18.501, 20.968, 23.55, 41.55])   # время в часах
 
-    Qinput *= 0.158987
-    Tinput *= 3600
+    Tinput = pd.to_datetime(Tinput, unit='h')
+
+    Qinput *= 0.158987      # закачка в м3/сут
 
     # кол-во расчетных точек
     N = 40
 
     # применение функции solve_kpd
-    pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
-
-    # print(pressure)
-    # print(time)
+    pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
 
     df = pd.read_excel("saphir2.xlsx", sheet_name="Лист2")
     Trealdata = pd.to_datetime(df['t'], unit='h')
-    # df_test = pd.read_excel("saphir_test2.xlsx", sheet_name="Лист1")
-    # Tanaldata = pd.to_datetime(df_test['Time, hr'], unit='h')
-
-    Tinput = pd.to_datetime(Tinput, unit='s')
 
     # --------------------------------------------------------------------------------
+
 
     fig = make_subplots(rows=2, cols=2,
                         specs=[[{}, {"rowspan": 2}],
@@ -180,11 +208,17 @@ if __name__ == "__main__":
                         row_heights=[0.7, 0.3],
                         column_widths=[0.6, 0.4])
 
-    fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data', mode='markers',
+                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
+                  row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
-    fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1, )
+    fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
 
-    fig.add_trace(go.Scatter(x=[1,2], y=[2,1]), row=1, col=2)
+    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
+    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
+
+    fig.update_xaxes(type="log", row=1, col=2)
+    fig.update_yaxes(type="log", row=1, col=2)
 
 
     app.layout = html.Div([
@@ -192,18 +226,3 @@ if __name__ == "__main__":
     ])
 
     app.run(debug=True)
-
-    # fig, axs = plt.subplots(2, 1, figsize=[8,5])
-    # axs[0].plot(time, pressure, color='red', linewidth=0.5)
-    # axs[0].plot(time, np.ones_like(pressure)*Pi, color='blue', linewidth=0.5)
-    # axs[1].step(Tinput, Qinput, where='post', color='orange', marker='o')
-    #
-    #
-    # axs[0].plot(Tanaldata, df_test['Pressure, psia'] * 6894.759 , color='green', linewidth=0.5)
-    #
-    #
-    #
-    #
-    # axs[0].plot(Trealdata, df['p, Pa'], color='blue', linewidth=1)
-    #
-    # plt.show()
