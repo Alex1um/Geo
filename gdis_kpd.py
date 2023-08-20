@@ -13,8 +13,8 @@ def bourdet_derivative(p,t):
     lnt = np.log(t)
     bd = np.zeros(n)
     for i in range(1,n-1):
-        bd[i] = [(p[i]-p[i-1])*(lnt[i+1]-lnt[i])/(lnt[i]-lnt[i-1]) +
-        (p[i+1]-p[i])*(lnt[i]-lnt[i-1])/(lnt[i+1]-lnt[i])] / (lnt[i+1]-lnt[i-1])
+        bd[i] = (p[i]-p[i-1])*(lnt[i+1]-lnt[i])/(lnt[i]-lnt[i-1]) + \
+        (p[i+1]-p[i])*(lnt[i]-lnt[i-1])/(lnt[i+1]-lnt[i]) / (lnt[i+1]-lnt[i-1])
     bd[0] = bd[1]
     bd[n-1] = bd[n-2]
     return bd
@@ -75,14 +75,19 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     T = np.array(Tinput, dtype=f"datetime64[s]").astype(np.int64)
 
     # манипуляции с закачкой
-    Q = np.zeros_like(Qinput)
+    Q = np.array([])
     tt = np.array([])
     kvd_time_start = -1
+
+    j = 0
     for i in range(len(Qinput)):
         if i == 0:
-            Q[i] = Qinput[i]
+            Q = np.append(Q, Qinput[i])
+            j += 1
         else:
-            Q[i] = Qinput[i] - Qinput[i - 1]
+            if Qinput[i] != Q[j-1]:
+                Q = np.append(Q, Qinput[i] - np.sum(Q[:i-1]))
+                j += 1
 
         if Qinput[i] == 0 and kvd_time_start == -1:
             kvd_time_start = T[i]
@@ -150,16 +155,16 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     #      26903161.28473018, 26906573.64454287, 26909475.290901355, 26912189.854606807, 26914464.41997173,
     #      26916523.73674312, 26918369.57409275, 26920069.89452821, 26921559.22323988, 26923118.288254134])
 
-
-    dP = np.zeros_like(p[kvd_ind_start:]) + Pi - p[kvd_ind_start:]
-    logdP = bourdet_derivative(dP, tt[kvd_ind_start:])
+    Pstart = p[kvd_ind_start]
+    deltaP = np.zeros_like(p[kvd_ind_start:]) - Pstart + p[kvd_ind_start:]
+    logdP = bourdet_derivative(deltaP, tt[kvd_ind_start:])
 
 
 
     # обратный перевод в datetime
     time = pd.to_datetime(tt, unit='s')
 
-    return p, time, dP, logdP
+    return p, time, deltaP, logdP
 
 
 if __name__ == "__main__":
@@ -182,15 +187,15 @@ if __name__ == "__main__":
     kfwf = 4.40421492e-13
     Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па
 
-    Qinput = np.array([789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка тут в барелл/сут
-    Tinput = np.array([0, 1.005, 2.393, 3.800, 5.167, 7.1, 9.484, 11.488, 13.414, 15.804, 18.501, 20.968, 23.55, 41.55])   # время в часах
+    Qinput = np.array([789, 789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка тут в барелл/сут
+    Tinput = np.array([0, 0.5, 1.005, 2.393, 3.800, 5.167, 7.1, 9.484, 11.488, 13.414, 15.804, 18.501, 20.968, 23.55, 41.55])   # время в часах
 
     Tinput = pd.to_datetime(Tinput, unit='h')
 
     Qinput *= 0.158987      # закачка в м3/сут
 
     # кол-во расчетных точек
-    N = 40
+    N = 20
 
     # применение функции solve_kpd
     pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
@@ -208,12 +213,14 @@ if __name__ == "__main__":
                         column_widths=[0.6, 0.4])
 
     fig.add_trace(go.Scatter(x=Trealdata, y=df['p, Pa'], name='Real Data', mode='markers',
-                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
+                             marker={'line' : {'color' : '#87cefa', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'},
+                             ),
                   row=1, col=1)
     fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
     fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
 
     fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
+    print(deltaP)
     fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
 
     fig.update_xaxes(type="log", row=1, col=2)
