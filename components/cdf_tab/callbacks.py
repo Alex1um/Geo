@@ -101,34 +101,44 @@ def on_all_params(
     Qinput = dataframe["Q"]
     Tinput = dataframe.index
 
-    N = 250
+    N = 10
 
     # применение функции solve_kpd
-    pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+    # pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+    pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
 
     # df = pd.read_excel("saphir2 (2).xlsx", sheet_name="Лист2")
     # Trealdata = pd.to_datetime(df['t'], unit='h')
 
     # --------------------------------------------------------------------------------
 
-
-    fig = make_subplots(rows=2, cols=2,
-                        specs=[[{}, {"rowspan": 2}],
-                               [{}, None]],
-                        row_heights=[0.7, 0.3],
-                        column_widths=[0.6, 0.4])
+    fig = make_subplots(rows=2, cols=1,
+                        row_heights=[0.7, 0.3])
 
     fig.add_trace(go.Scatter(x=Tinput, y=dataframe['P'], name='Real Data', mode='markers',
-                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
+                             marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'},
+                             ),
                   row=1, col=1)
-    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
+    fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Solve Data'), row=1, col=1)
     fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
 
-    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
-    fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
-
-    fig.update_xaxes(type="log", row=1, col=2)
-    fig.update_yaxes(type="log", row=1, col=2)
+    # fig = make_subplots(rows=2, cols=2,
+    #                     specs=[[{}, {"rowspan": 2}],
+    #                            [{}, None]],
+    #                     row_heights=[0.7, 0.3],
+    #                     column_widths=[0.6, 0.4])
+    #
+    # fig.add_trace(go.Scatter(x=Tinput, y=dataframe['P'], name='Real Data', mode='markers',
+    #                          marker={'line' : {'color' : 'blue', 'width' : 1}, 'size' : 3, 'symbol' : 'x-thin'}),
+    #               row=1, col=1)
+    # fig.add_trace(go.Scatter(x=time, y=pressure, line_shape='spline', name='Num Data'), row=1, col=1)
+    # fig.add_trace(go.Scatter(x=Tinput, y=Qinput, line_shape='hv', name='Flow Rate'), row=2, col=1)
+    #
+    # fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=deltaP), row=1, col=2)
+    # fig.add_trace(go.Scatter(x=np.array(Tinput, dtype=f"datetime64[h]").astype(np.int64), y=log_derP), row=1, col=2)
+    #
+    # fig.update_xaxes(type="log", row=1, col=2)
+    # fig.update_yaxes(type="log", row=1, col=2)
 
 
     return [
