@@ -174,14 +174,14 @@ if __name__ == "__main__":
     # --------------------------------------------------------------------------------
 
     # Parametrs
-    xf = 3.67 * 0.3048           # fracture half-length from ft to m
+    xf = 3.67 * 0.3048           # fracture half-length from ft to m = 1.118
     poro = 0.1          # rock porosity
     h = 30 * 0.3048              # total formation thickness from ft to m
     k = 386 * 1.02e-15          # permeability m2
     S = 0.294684               # skin factor
     Cs = 0.014 / 6894.759 * 0.158987    #  0,0000003228275274016104      # wellbore storage coefficient
     kfwf = 4.40421492e-13
-    Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па
+    Pi = 3910.03 * 6894.759            # пластовое давление из psia в Па    26958000
 
     Qinput = np.array([789, 789, 850, 816, 2450, 2410, 976, 942, 920, 912, 865, 835, 830, 0, 0], dtype=float)    # закачка тут в барелл/сут
     Tinput = np.array([0, 0.5, 1.005, 2.393, 3.800, 5.167, 7.1, 9.484, 11.488, 13.414, 15.804, 18.501, 20.968, 23.55, 41.55])   # время в часах
