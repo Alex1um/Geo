@@ -77,16 +77,19 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
     # манипуляции с закачкой
     Q = np.array([])
     tt = np.array([])
+    Qt = np.array([])
     kvd_time_start = -1
 
     j = 0
     for i in range(len(Qinput)):
         if i == 0:
             Q = np.append(Q, Qinput[i])
+            Qt = np.append(Qt, T[i])
             j += 1
         else:
             # if Qinput[i] != np.sum(Q):
                 Q = np.append(Q, Qinput[i] - np.sum(Q[:i-1]))
+                Qt = np.append(Qt, T[i])
                 j += 1
 
         if Qinput[i] == 0 and kvd_time_start == -1:
@@ -128,9 +131,9 @@ def solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N=50):
 
     # главный расчетный цикл по ступеням закачки
     for i in range(0, len(Q)):
-        print(round(i / (len(Q)) * 100), "%")
-        after = tt >= T[i]
-        tt1 = tt[after] - T[i]
+        print(round(i / float(len(Q)) * 100), "%")
+        after = tt >= Qt[i]
+        tt1 = tt[after] - Qt[i]
         td1 = (k * tt1) / (poro * mu * Ct * (xf ** 2))
         pwd1 = pwd(S, Cd, Fcd, td1)
         pwd1 = np.array(pwd1.tolist(), dtype=float)
