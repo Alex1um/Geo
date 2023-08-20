@@ -8,55 +8,103 @@ CDF_CONTENT = dbc.CardGroup(
     [
         dbc.Card(
             [
-                dbc.InputGroup(
+                dbc.CardBody(
                     [
-                        PARAM_XF := dbc.Input(type="number")
-                    ]
+                        dbc.Row(
+                            [
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("xf"),
+                                        PARAM_XF := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("m"),
+                                        PARAM_M := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("h"),
+                                        PARAM_H := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                            ],
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("k"),
+                                        PARAM_K := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("S"),
+                                        PARAM_S := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("Cs"),
+                                        PARAM_CS := dbc.Input(type="number")
+                                    ],
+                                    style={'width': "30%"},
+                                ),
+                            ],
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("KfWf"),
+                                        PARAM_KFWF := dbc.Input(type="number")
+                                    ],
+                                    className="g-col-1",
+                                    style={'width': "30%"},
+                                ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("Pi"),
+                                        PARAM_PI := dbc.Input(type="number")
+                                    ],
+                                    className="g-col-1",
+                                    style={'width': "30%"},
+                                ),
+                            ],
+                        ),
+                    ],
+                    className="d-flex flex-column row-gap-3"
                 ),
-                dbc.InputGroup(
+                dbc.CardFooter(
                     [
-                        PARAM_M := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_H := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_K := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_S := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_CS := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_KW := dbc.Input(type="number")
-                    ]
-                ),
-                dbc.InputGroup(
-                    [
-                        PARAM_PI := dbc.Input(type="number")
-                    ]
+                        PROCESS_BUTTON := dbc.Button(
+                            "Process",
+                            outline=True,
+                            disabled=True,
+                        ),
+                    ],
                 ),
             ]
         ),
         dbc.Card(
             [
-                MAIN_GRAPH := dcc.Graph(id='cdf')
+                dbc.CardBody(
+                    [
+                        MAIN_GRAPH := dcc.Graph(id='cdf-graph')
+                    ]
+                )
             ]
         ),
     ],
-    className="d-none flex-column gap-3",
+    className="d-none flex-column gap-3 mt-3",
 ) 
 
 
