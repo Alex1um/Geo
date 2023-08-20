@@ -49,11 +49,12 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                         ),
                         dbc.Row(
                             [
-                                COL_DATE_TYPE := dcc.Dropdown(
+                                COL_DATE_TYPE := dbc.Select(
                                     id="select-date-type",
                                     options=["s", "auto", "h", "D", "M", "Y"],
                                     value="s",
-                                    clearable=False,
+                                    # clearable=False,
+                                    className="form-control"
                                 )
                             ]
                         ),
@@ -61,26 +62,26 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        COL_Q := dcc.Dropdown(id="select-q"),
+                        COL_Q := dbc.Select(id="select-q", className="form-control"),
                     ],
                 ),
                 dbc.Col(
                     [
-                        COL_P := dcc.Dropdown(id="select-p")
+                        COL_P := dbc.Select(id="select-p", className="form-control")
                     ],
                 ),
                 dbc.Col(
                     [
-                        COL_ND := dcc.Dropdown(id="select-nozzle-diameter"),
+                        COL_ND := dbc.Select(id="select-nozzle-diameter", className="form-control"),
                     ],
                 ),
                 dbc.Col(
                     [
-                        COL_P0 := dcc.Dropdown(id="select-p0", className="form-control"),
+                        COL_P0 := dbc.Select(id="select-p0", className="form-control"),
                     ],
-                    className="form-floating",
                 ),
-            ]
+            ],
+            className="form-floating",
         ),
     ],
     id="table-begin",
