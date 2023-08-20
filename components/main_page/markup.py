@@ -3,11 +3,12 @@ from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 from components.hall_tab import HALL_TAB
 from components.srt_tab import SRT_TAB
+from components.cdf_tab import CDF_TAB
 import plotly.graph_objects as go
 
 
 
-MAIN_COMPONENT = html.Div(
+MAIN_COMPONENT = dbc.CardGroup(
     [
         dbc.Card(
             [
@@ -66,7 +67,7 @@ MAIN_COMPONENT = html.Div(
                                 ),
                                 dcc.Tab(
                                     [
-                                        "..."
+                                        CDF_TAB
                                     ],
                                     label="CFP",
                                 ),
@@ -78,7 +79,7 @@ MAIN_COMPONENT = html.Div(
         )
     ],
     id="main_page-content",
-    className="d-none flex-column",
+    className="d-none flex-column gap-3",
     # className="d-flex flex-column row-gap-2",
 )
 
