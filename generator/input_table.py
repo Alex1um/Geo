@@ -10,7 +10,7 @@ def generate_upload_table(
     upload_component: dcc.Upload,
     open_triggers: list[Input],
     modal_inputs: list,
-) -> dbc.Modal:
+) -> (dbc.Modal, dbc.Button, dbc.Button):
     
     config_modal = dbc.Modal(
     [
