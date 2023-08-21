@@ -9,11 +9,13 @@ import io
 from typing import Union, Literal
 import plotly.graph_objects as go
 from tools import make_columns_unique
+from components.srt_tab import P_FRAC
 
 
 @app.callback(
     [
         Output(MAIN_COMPONENT, "is_in"),
+        Output(MAIN_COMPONENT, "className"),
         Output(UPLOAD_TABLE, "className"),
         Output(MAIN_TABLE, "data"),
     ],
@@ -21,7 +23,7 @@ from tools import make_columns_unique
         Input(MAIN_TABLE_CONFIG, "data"),
     ],
     [
-        State(MAIN_COMPONENT, "is_in"),
+        State(MAIN_COMPONENT, "className"),
         State(UPLOAD_TABLE, "className"),
         State(SOURCE_TABLE, "data"),
     ],
@@ -70,7 +72,7 @@ def on_config_ok(
 
     return [
         True,
-        # main_classes.replace("d-none", "d-flex"),
+        main_classes.replace("d-none", "d-block"),
         upload_classes.replace("d-flex", "d-none"),
         dataframe.to_dict("records"),
     ]
@@ -104,7 +106,6 @@ def on_upload(content, filename, filedate):
         dataframe_source.to_dict("records"),
     ]
 
-from components.srt_tab import P_FRAC
 
 @app.callback(
     [

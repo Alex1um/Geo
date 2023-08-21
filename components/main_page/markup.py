@@ -7,7 +7,6 @@ from components.cdf_tab import CDF_TAB
 import plotly.graph_objects as go
 
 
-
 MAIN_COMPONENT = dbc.Fade(
     dbc.CardGroup(
         [
@@ -79,11 +78,11 @@ MAIN_COMPONENT = dbc.Fade(
                 ]
             )
         ],
-        className="flex-column gap-3",
+        className="d-flex flex-column gap-3",
         id="main_page-content",
     ),
     is_in=False,
-    # className="d-flex flex-column row-gap-2",
+    className="d-none flex-column row-gap-2",
 )
 
 
