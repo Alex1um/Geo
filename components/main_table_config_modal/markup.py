@@ -38,7 +38,7 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                 dbc.Col("Date fields"),
                 dbc.Col("Q"),
                 dbc.Col("P"),
-                dbc.Col("Nozzle diameter"),
+                dbc.Col("Choke diameter"),
                 dbc.Col("P_0"),
             ],
             className="mt-2",
@@ -55,7 +55,7 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
                         ),
                         COL_DATE_TYPE := dcc.Dropdown(
                             id="select-date-type",
-                            options=["s", "auto", "h", "D", "M", "Y"],
+                            options=["s", "auto", "h", "D"],
                             value="auto",
                             clearable=False,
                             # className="form-control input-group-append w-auto",

@@ -76,12 +76,8 @@ SRT_PLOTS = dbc.CardGroup(
                     [
                         dbc.CardBody(
                             [
-                                dcc.Loading(
-                                    [
-                                        CHOOSE_GRAPH := dcc.Graph(
-                                            id="srt-choose-graph",
-                                        )
-                                    ]
+                                CHOOSE_GRAPH := dcc.Graph(
+                                    id="srt-choose-graph",
                                 )
                             ],
                         ),

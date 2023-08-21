@@ -49,8 +49,9 @@ _SRT_CONFIG_MODAL_CONTENT = dbc.Container(
                             [
                                 SRT_COL_DATE_TYPE := dcc.Dropdown(
                                     id="select-srt-date-type",
-                                    options=["s", "auto", "h", "D", "M", "Y"],
+                                    options=["s", "auto", "h", "D"],
                                     value="s",
+                                    clearable=False,
                                     className="",
                                 )
                             ]
@@ -59,15 +60,16 @@ _SRT_CONFIG_MODAL_CONTENT = dbc.Container(
                 ),
                 dbc.Col(
                     [
-                        SRT_COL_Q := dcc.Dropdown(id="select-srt-q"),
+                        SRT_COL_Q := dbc.Select(id="select-srt-q", className="form-control"),
                     ],
                 ),
                 dbc.Col(
                     [
-                        SRT_COL_P := dcc.Dropdown(id="select-srt-p")
+                        SRT_COL_P := dbc.Select(id="select-srt-p", className="form-control")
                     ],
                 ),
-            ]
+            ],
+            className="form-floating",
         ),
     ],
     id="srt-table-begin",

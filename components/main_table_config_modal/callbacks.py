@@ -3,7 +3,7 @@ from dash import Output, Input, State, ctx
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
     PREVIEW_TABLE, TABLE_START_ROW, COL_DATE_TYPE, COL_P0, TABLE_START_COL
-from components.main_page.markup import MAIN_COMPONENT, UPLOAD_COMPONENT, REASSIGN_BUTTON
+from components.main_page.markup import REASSIGN_BUTTON
 from components.memory import SOURCE_TABLE, MAIN_TABLE_CONFIG
 from dash_app import app
 from typing import Union, Literal

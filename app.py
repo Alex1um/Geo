@@ -33,7 +33,7 @@ app.layout = dbc.Container(
 )
 
 app.title = 'geoplot'
-app._favicon = (os.path.join('/logo.ico'))
+# app._favicon = (os.path.join('/logo.ico'))
 
 if __name__ == "__main__":
     app.run_server(debug=True)

@@ -2,7 +2,7 @@ from dash import Input, Output, State, dcc, html
 from dash_app import app
 from components.main_table_config_modal import BT_OK
 from components.memory import MAIN_TABLE_CONFIG, SOURCE_TABLE
-from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_COMPONENT, MAIN_PLOT
+from components.main_page import MAIN_TABLE, MAIN_COMPONENT, UPLOAD_TABLE, MAIN_PLOT
 import base64
 import pandas as pd
 import io
@@ -13,16 +13,16 @@ from tools import make_columns_unique
 
 @app.callback(
     [
-        Output(MAIN_COMPONENT, "className"),
-        Output(UPLOAD_COMPONENT, "className"),
+        Output(MAIN_COMPONENT, "is_in"),
+        Output(UPLOAD_TABLE, "className"),
         Output(MAIN_TABLE, "data"),
     ],
     [
         Input(MAIN_TABLE_CONFIG, "data"),
     ],
     [
-        State(MAIN_COMPONENT, "className"),
-        State(UPLOAD_COMPONENT, "className"),
+        State(MAIN_COMPONENT, "is_in"),
+        State(UPLOAD_TABLE, "className"),
         State(SOURCE_TABLE, "data"),
     ],
     prevent_initial_call=True,
@@ -69,7 +69,8 @@ def on_config_ok(
     dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
 
     return [
-        main_classes.replace("d-none", "d-flex"),
+        not main_classes,
+        # main_classes.replace("d-none", "d-flex"),
         upload_classes.replace("d-flex", "d-none"),
         dataframe.to_dict("records"),
     ]
@@ -79,9 +80,9 @@ def on_config_ok(
     [
         Output(SOURCE_TABLE, "data"),
     ],
-    Input(UPLOAD_COMPONENT, "contents"),
-    State(UPLOAD_COMPONENT, "filename"),
-    State(UPLOAD_COMPONENT, "last_modified"),
+    Input(UPLOAD_TABLE, "contents"),
+    State(UPLOAD_TABLE, "filename"),
+    State(UPLOAD_TABLE, "last_modified"),
     prevent_initial_call=True,
 )
 def on_upload(content, filename, filedate):
@@ -154,11 +155,11 @@ def main_graph_update(table_data, p_frac, old_fig):
             name="Pressure",
             yaxis="y2",
     ))
-    if "P0" in dataframe.columns:
+    if "P_0" in dataframe.columns:
         fig.add_trace(
             go.Scatter(
                 x=dataframe.index,
-                y=dataframe["P0"],
+                y=dataframe["P_0"],
                 name="P0",
                 yaxis="y2"
         ))
@@ -167,7 +168,7 @@ def main_graph_update(table_data, p_frac, old_fig):
             go.Scatter(
                 x=dataframe.index,
                 y=dataframe["ND"],
-                name="Nuzzle Diameter",
+                name="Choke Diameter",
                 yaxis="y3",
         ))
         fig.update_layout({

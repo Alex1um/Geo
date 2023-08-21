@@ -8,83 +8,86 @@ import plotly.graph_objects as go
 
 
 
-MAIN_COMPONENT = dbc.CardGroup(
-    [
-        dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        MAIN_TABLE := dash_table.DataTable(
-                            id="table-main-page",
-                            editable=True,
-                            page_size=10,
-                            style_table={"overflowX": "auto"},
-                        ),
-                        dbc.Container(
-                            [
-                                REASSIGN_BUTTON := dbc.Button(
-                                    "Reassign Columns",
-                                ),
-                            ],
-                            className="d-flex justify-content-end mt-2"
-                        ),
-                    ],
-                ),
-            ],
-        ),
-        dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        dcc.Loading(
-                            [
-                                MAIN_PLOT := dcc.Graph(
-                                    id="main-plot"
-                                )
-                            ],
-                        ),
-                    ]
-                )
-            ]
-        ),
-        dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        dcc.Tabs(
-                            [
-                                dcc.Tab(
-                                    [
-                                        HALL_TAB,
-                                    ],
-                                    label="Hall's diagnostic method",
-                                ),
-                                dcc.Tab(
-                                    [
-                                        SRT_TAB,
-                                    ],
-                                    label="Indicator research (SRT)",
-                                ),
-                                dcc.Tab(
-                                    [
-                                        CDF_TAB
-                                    ],
-                                    label="Well flow test",
-                                ),
-                            ]
-                        )
-                    ]
-                )
-            ]
-        )
-    ],
-    id="main_page-content",
-    className="d-none flex-column gap-3",
+MAIN_COMPONENT = dbc.Fade(
+    dbc.CardGroup(
+        [
+            dbc.Card(
+                [
+                    dbc.CardBody(
+                        [
+                            MAIN_TABLE := dash_table.DataTable(
+                                id="table-main-page",
+                                editable=True,
+                                page_size=10,
+                                style_table={"overflowX": "auto"},
+                            ),
+                            dbc.Container(
+                                [
+                                    REASSIGN_BUTTON := dbc.Button(
+                                        "Reassign Columns",
+                                    ),
+                                ],
+                                className="d-flex justify-content-end mt-2"
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+            dbc.Card(
+                [
+                    dbc.CardBody(
+                        [
+                            dcc.Loading(
+                                [
+                                    MAIN_PLOT := dcc.Graph(
+                                        id="main-plot"
+                                    )
+                                ],
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            dbc.Card(
+                [
+                    dbc.CardBody(
+                        [
+                            dbc.Tabs(
+                                [
+                                    dbc.Tab(
+                                        [
+                                            HALL_TAB,
+                                        ],
+                                        label="Hall's diagnostic method",
+                                    ),
+                                    dbc.Tab(
+                                        [
+                                            SRT_TAB,
+                                        ],
+                                        label="Indicator research (SRT)",
+                                    ),
+                                    dbc.Tab(
+                                        [
+                                            CDF_TAB
+                                        ],
+                                        label="Well flow test",
+                                    ),
+                                ],
+                            )
+                        ]
+                    )
+                ]
+            )
+        ],
+        className="flex-column gap-3",
+        id="main_page-content",
+    ),
+    is_in=False,
     # className="d-flex flex-column row-gap-2",
 )
 
 
-UPLOAD_COMPONENT = dcc.Upload(
+UPLOAD_TABLE = dcc.Upload(
     [
         upload_button := dbc.Button(
             "Drag and Drop or Select table",
@@ -120,13 +123,13 @@ PAGE_HEADER = dbc.Container(
         # html.Hr(),
     ],
     fluid=False,
-    className="d-flex flex-column justify-content-center text-center",
+    className="d-flex flex-column justify-content-center text-center align-items-center",
 )
 
 
 MAIN_SECTION = html.Section(
     children=[
-        UPLOAD_COMPONENT,
+        UPLOAD_TABLE,
         MAIN_COMPONENT,
     ],
     className="container-fluid text-center",
