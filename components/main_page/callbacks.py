@@ -69,7 +69,7 @@ def on_config_ok(
     dataframe = dataframe.rename(columns={q_col: "Q", p_col: "P", p0_col: "P_0", nd_col: "ND"})
 
     return [
-        not main_classes,
+        True,
         # main_classes.replace("d-none", "d-flex"),
         upload_classes.replace("d-flex", "d-none"),
         dataframe.to_dict("records"),

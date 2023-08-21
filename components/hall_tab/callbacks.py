@@ -2,6 +2,7 @@ from components.hall_tab import START_BUTTON, START_COMPONENT, HALL_PLOTS, HALL_
 from components.main_page import MAIN_TABLE
 from dash_app import app
 from dash import Input, Output, State, dcc
+from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.graph_objects as go
 from holla import makeHolla
@@ -21,7 +22,6 @@ from components.memory import MAIN_TABLE_CONFIG
     prevent_initial_call=True,
 )
 def on_load(_, data):
-
     dataframe = pd.DataFrame(data)
     dataframe["DATE"] = dataframe["DATE"].apply(pd.to_datetime)
     dataframe = dataframe.set_index("DATE").sort_index()
@@ -53,7 +53,7 @@ def on_load(_, data):
         Output(HALL_GRAPH, "figure")
     ],
     [
-        Input(HALL_PROCESS_BT, "n_clicks")
+        Input(HALL_PROCESS_BT, "n_clicks"),
     ],
     [
         State(RANGE_GRAPH, "figure"),
@@ -89,23 +89,19 @@ def on_process(_, fig, data):
     ],
     [
         Input(START_BUTTON, "n_clicks"),
+        Input(MAIN_TABLE_CONFIG, "data"),
     ],
     [
-        State(MAIN_TABLE_CONFIG, "data"),
         State(START_COMPONENT, "className"),
         State(HALL_PLOTS, "className"),
     ],
     prevent_initial_call=True,
 )
-def on_start_click(_, config, class_start, class_hall):
-    if config.get("col_p0"):
+def on_start_click(start_clicks, config, class_start, class_hall):
+    if config.get("col_p0") and start_clicks > 0:
         return [
             class_start.replace("d-flex", "d-none"),
             class_hall.replace("d-none", "d-flex"),
         ]
     else:
-        return [
-            class_start,
-            class_hall
-        ]
-    
+        raise PreventUpdate

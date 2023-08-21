@@ -1,5 +1,5 @@
 import pandas as pd
-from dash import Output, Input, State, ctx
+from dash import Output, Input, State, ctx, no_update
 
 from components.main_table_config_modal.markup import CONFIG_MODAL, BT_CANCEL, BT_OK, COL_P, COL_Q, COL_DATE, COL_ND, \
     PREVIEW_TABLE, TABLE_START_ROW, COL_DATE_TYPE, COL_P0, TABLE_START_COL
@@ -228,7 +228,7 @@ def on_type_change(
 )
 def on_invalid_hall_start_and_edit(n_clicks, current_value, current_classes: str, is_opened):
     if current_value and "is-invalid" in current_classes:
-        current_classes.removesuffix(" is-invalid")
+        current_classes = current_classes.removesuffix(" is-invalid")
     elif ctx.triggered_id == HALL_START_BUTTON.id:
         current_classes += " is-invalid"
     return [
