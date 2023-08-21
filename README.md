@@ -3,10 +3,7 @@
 ## Запуск
 
 ```sh
-git clone https://github.com/Alex1um/Geo.git
-```
-```sh 
-cd Geo
+git clone https://github.com/Alex1um/Geo.git & cd Geo
 ```
 ```sh
 pip install -r requirements.txt

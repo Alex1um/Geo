@@ -98,7 +98,7 @@ def on_process(_, fig, data):
     prevent_initial_call=True,
 )
 def on_start_click(start_clicks, config, class_start, class_hall):
-    if config.get("col_p0") and start_clicks > 0:
+    if config.get("col_p0") and start_clicks and start_clicks > 0:
         return [
             class_start.replace("d-flex", "d-none"),
             class_hall.replace("d-none", "d-flex"),
