@@ -1,4 +1,5 @@
 from dash import Input, Output, State, dcc, html
+from dash.exceptions import PreventUpdate
 from dash_app import app
 from components.main_table_config_modal import BT_OK
 from components.memory import MAIN_TABLE_CONFIG, SOURCE_TABLE
@@ -101,9 +102,30 @@ def on_upload(content, filename, filedate):
             dataframe_source = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
         elif filename.endswith(".xlsx") or filename.endswith(".xls"):
             dataframe_source = pd.read_excel(decoded)
-
+        else:
+            raise PreventUpdate
+    else:
+        raise PreventUpdate
     return [
         dataframe_source.to_dict("records"),
+    ]
+
+
+from components.main_table_config_modal import BT_CANCEL as MODAL_BT_CANCEL
+
+
+@app.callback(
+    [
+        Output(UPLOAD_TABLE, "contents"),
+    ],
+    [
+        Input(MODAL_BT_CANCEL, "n_clicks"),
+    ],
+    prevent_initial_call=True,
+)
+def on_upload(_):
+    return [
+        None,
     ]
 
 
