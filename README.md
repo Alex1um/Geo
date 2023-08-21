@@ -2,10 +2,16 @@
 
 ## Запуск
 
-git clone <SSH-code>
-
-pip install -r requirements.txt
-
+```sh
+git clone https://github.com/Alex1um/Geo.git
+```
+```sh 
 cd Geo
-
-python main.py
+```
+```sh
+pip install -r requirements.txt
+```
+```sh
+python app.py
+```
+---
