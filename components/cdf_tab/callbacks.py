@@ -46,7 +46,7 @@ def on_start_click(_, class_start, class_cdf_cont, gdis_params):
     return [
         class_start.replace("d-flex", "d-none"),
         class_cdf_cont.replace("d-none", "d-flex"),
-        *[no_update] * 8
+        *[no_update] * 9
     ]
 
 
