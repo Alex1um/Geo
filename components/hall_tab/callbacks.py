@@ -31,15 +31,15 @@ def on_load(_, data):
         for col in dataframe.columns
     ]
     layout = go.Layout(hovermode="closest",
-                        title="<b>0</b>",
-                        yaxis={"title": "<b>1<b>"},
+                        title="<b>Select a time interval</b>",
+                        # yaxis={"title": "<b>1<b>"},
                         xaxis=dict(
-                            title="<b>2</b>",
+                            title="<b>Time</b>",
                             rangeslider=dict(
                                 visible=True
                             )
-                        ),
-                        legend={"title": "3"},
+                        )
+                        # legend={"title": "3"},
                         )
     fig = go.Figure(data, layout)
     

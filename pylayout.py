@@ -10,7 +10,10 @@ HTML_TITLE = html.Div(
             className="float fw-bold text-center mt-3 fs-1 fw-bold",
         ),
         html.H6(
-            "TechnoHack 2023"
+            "TechnoHack IT-GEO 2023"
+        ),
+        html.H6(
+            "Samigullin Linar & Prokopenko Vsevolod"
         ),
         html.A(
             "GitHub", href="https://github.com/Alex1um/Geo>GitHub"

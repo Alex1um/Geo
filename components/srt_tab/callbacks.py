@@ -139,7 +139,7 @@ def on_setup(table_config, main_table_data):
 
 
     layout_regression = go.Layout(hovermode="closest",
-                                    title="<b>SRTest</b>",
+                                    title="<b>Step Rate Test</b>",
                                     yaxis={"title": "<b>Pressure<b>"},
                                     xaxis={"title": "<b>Flow Rate</b>"},
                                     legend={"title": "Legend"})

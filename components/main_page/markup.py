@@ -57,19 +57,19 @@ MAIN_COMPONENT = dbc.CardGroup(
                                     [
                                         HALL_TAB,
                                     ],
-                                    label="Hall",
+                                    label="Hall's diagnostic method",
                                 ),
                                 dcc.Tab(
                                     [
                                         SRT_TAB,
                                     ],
-                                    label="SRT test",
+                                    label="Indicator research (SRT)",
                                 ),
                                 dcc.Tab(
                                     [
                                         CDF_TAB
                                     ],
-                                    label="CFP",
+                                    label="Well flow test",
                                 ),
                             ]
                         )
@@ -87,7 +87,7 @@ MAIN_COMPONENT = dbc.CardGroup(
 UPLOAD_COMPONENT = dcc.Upload(
     [
         upload_button := dbc.Button(
-            "Drag and Drop or select table",
+            "Drag and Drop or Select table",
             outline=False,
             className="text-center",
             id="table-upload-button"
@@ -103,15 +103,21 @@ PAGE_HEADER = dbc.Container(
     children=
     [
         html.H1(
-            "GeoPROD",
+            "geoplot",
             className="float fw-bold text-center mt-3 fs-1 fw-bold",
         ),
+        html.Hr(),
         html.H6(
-            "TechnoHack 2023"
+            "TechnoHack IT-GEO 2023"
+        ),
+        html.H6(
+            "Samigullin Linar & Prokopenko Vsevolod"
         ),
         html.A(
             "GitHub", href="https://github.com/Alex1um/Geo"
         ),
+        html.Br()
+        # html.Hr(),
     ],
     fluid=False,
     className="d-flex flex-column justify-content-center text-center",

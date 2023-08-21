@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 from dash_app import app
 from components import *
+import os
 
 # dataframe_source: pd.DataFrame = None
 # dataframe: pd.DataFrame = None
@@ -383,6 +384,11 @@ app.layout = dbc.Container(
 # #     return False
 #
 #
+
+app.title = 'geoplot'
+app._favicon = (os.path.join('/logo.ico'))
+
 if __name__ == "__main__":
     app.run_server(debug=True)
+
     
