@@ -9,9 +9,13 @@ HALL_PLOTS = dbc.CardGroup(
             [
                 dbc.CardBody(
                     [
-                        RANGE_GRAPH := dcc.Graph(
-                            id="hall-range-plot",
-                            )
+                        dcc.Loading(
+                            [
+                                RANGE_GRAPH := dcc.Graph(
+                                    id="hall-range-plot",
+                                )
+                            ]
+                        )
                     ],
                 ),
             ],
@@ -26,8 +30,12 @@ HALL_PLOTS = dbc.CardGroup(
             [
                 dbc.CardBody(
                     [
-                        HALL_GRAPH := dcc.Graph(
-                            id="hall-graph"
+                        dcc.Loading(
+                            [
+                                HALL_GRAPH := dcc.Graph(
+                                    id="hall-graph"
+                                )
+                            ]
                         )
                     ]
                 )
