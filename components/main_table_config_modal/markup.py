@@ -47,23 +47,21 @@ _CONFIG_MODAL_CONTENT = dbc.Container(
             [
                 dbc.Col(
                     [
-                        dbc.Row(
-                            [
-                                COL_DATE := dcc.Dropdown(id="select-date", multi=True),
-                            ]
+                        COL_DATE := dcc.Dropdown(
+                            id="select-date",
+                            multi=True,
+                            # className="form-control",
+                            style={"width": "100%"}
                         ),
-                        dbc.Row(
-                            [
-                                COL_DATE_TYPE := dbc.Select(
-                                    id="select-date-type",
-                                    options=["s", "auto", "h", "D", "M", "Y"],
-                                    value="s",
-                                    # clearable=False,
-                                    className="form-control"
-                                )
-                            ]
-                        ),
+                        COL_DATE_TYPE := dcc.Dropdown(
+                            id="select-date-type",
+                            options=["s", "auto", "h", "D", "M", "Y"],
+                            value="auto",
+                            clearable=False,
+                            # className="form-control input-group-append w-auto",
+                        )
                     ],
+                    # className="input-group"
                 ),
                 dbc.Col(
                     [
