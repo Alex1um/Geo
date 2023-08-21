@@ -80,6 +80,14 @@ CDF_CONTENT = dbc.CardGroup(
                                     className="g-col-1",
                                     style={'width': "30%"},
                                 ),
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText("N"),
+                                        PARAM_N := dbc.Input(type="number", id="param-n", value=50)
+                                    ],
+                                    className="g-col-1",
+                                    style={'width': "30%"},
+                                ),
                             ],
                         ),
                     ],

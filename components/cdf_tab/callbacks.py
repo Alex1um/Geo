@@ -22,6 +22,7 @@ from components.memory import GDIS_PARAMS
         Output(PARAM_PI, "value"),
         Output(PARAM_S, "value"),
         Output(PARAM_XF, "value"),
+        Output(PARAM_N, "value"),
     ],
     [
         Input(START_BUTTON, "n_clicks"),
@@ -39,7 +40,7 @@ def on_start_click(_, class_start, class_cdf_cont, gdis_params):
         return [
             class_start.replace("d-flex", "d-none"),
             class_cdf_cont.replace("d-none", "d-flex"),
-            *(gdis_params[param] for param in map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF)))
+            *(gdis_params[param] for param in map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF, PARAM_N)))
         ]
 
     return [
@@ -63,6 +64,7 @@ def on_start_click(_, class_start, class_cdf_cont, gdis_params):
         Input(PARAM_PI, "value"),
         Input(PARAM_S, "value"),
         Input(PARAM_XF, "value"),
+        Input(PARAM_N, "value"),
     ],
     prevent_initial_call=True,
 )
@@ -75,8 +77,9 @@ def validate_inputs(
     pi,
     s,
     xf,
+    n,
 ):
-    disabled = not all((cs, h, k, kfwf, m, pi, s, xf))
+    disabled = not all((cs, h, k, kfwf, m, pi, s, xf, n))
     return disabled, disabled
 
 
@@ -96,6 +99,7 @@ def validate_inputs(
         State(PARAM_PI, "value"),
         State(PARAM_S, "value"),
         State(PARAM_XF, "value"),
+        State(PARAM_N, "value"),
         State(DATA_TABLE, "derived_virtual_data"),
     ],
     prevent_initial_call=True,
@@ -110,6 +114,7 @@ def on_all_params(
     Pi,
     S,
     xf,
+    n,
     data
 ):
 
@@ -120,7 +125,7 @@ def on_all_params(
     Qinput = dataframe["Q"]
     Tinput = dataframe.index
 
-    N = 150
+    N = n
 
     # применение функции solve_kpd
     # pressure, time, deltaP, log_derP, _ = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
@@ -181,8 +186,9 @@ def on_all_params(
         State(PARAM_PI, "value"),
         State(PARAM_S, "value"),
         State(PARAM_XF, "value"),
+        State(PARAM_N, "value"),
     ],
     prevent_initial_call=True,
 )
 def save_params(_, *params):
-    return [{k:v for k, v in zip(map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF)), params)}]
+    return [{k:v for k, v in zip(map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF, PARAM_N)), params)}]
