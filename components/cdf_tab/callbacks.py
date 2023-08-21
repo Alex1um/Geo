@@ -39,7 +39,7 @@ def on_start_click(_, class_start, class_cdf_cont, gdis_params):
         return [
             class_start.replace("d-flex", "d-none"),
             class_cdf_cont.replace("d-none", "d-flex"),
-            *(gdis_params[param] for param in map(lambda x: x.id, (PARAM_H, PARAM_XF, PARAM_K, PARAM_M, PARAM_S, PARAM_CS, PARAM_PI, PARAM_KFWF)))
+            *(gdis_params[param] for param in map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF)))
         ]
 
     return [
@@ -123,7 +123,7 @@ def on_all_params(
     N = 150
 
     # применение функции solve_kpd
-    # pressure, time, deltaP, log_derP = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
+    # pressure, time, deltaP, log_derP, _ = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
     pressure, time = solve_kpd(Tinput, Qinput, xf, poro, h, k, S, Cs, kfwf, Pi, N)
 
     # df = pd.read_excel("saphir2 (2).xlsx", sheet_name="Лист2")
