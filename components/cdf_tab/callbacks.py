@@ -1,18 +1,27 @@
 from dash_app import app
 from components.cdf_tab import *
-from dash import Input, Output, State
+from dash import Input, Output, State, no_update
 from components.main_page import MAIN_TABLE as DATA_TABLE
 import pandas as pd
 import plotly.graph_objects as go
 from gdis_kpd import solve_kpd
 from plotly.subplots import make_subplots
 import numpy as np
+from components.memory import GDIS_PARAMS
 
 
 @app.callback(
     [
         Output(START_COMPONENT, "className"),
         Output(CDF_CONTENT, "className"),
+        Output(PARAM_CS, "value"),
+        Output(PARAM_H, "value"),
+        Output(PARAM_K, "value"),
+        Output(PARAM_KFWF, "value"),
+        Output(PARAM_M, "value"),
+        Output(PARAM_PI, "value"),
+        Output(PARAM_S, "value"),
+        Output(PARAM_XF, "value"),
     ],
     [
         Input(START_BUTTON, "n_clicks"),
@@ -20,13 +29,23 @@ import numpy as np
     [
         State(START_COMPONENT, "className"),
         State(CDF_CONTENT, "className"),
+        State(GDIS_PARAMS, "data"),
     ],
     prevent_initial_call=True,
 )
-def on_start_click(_, class_start, class_cdf_cont):
+def on_start_click(_, class_start, class_cdf_cont, gdis_params):
+
+    if gdis_params:
+        return [
+            class_start.replace("d-flex", "d-none"),
+            class_cdf_cont.replace("d-none", "d-flex"),
+            *(gdis_params[param] for param in map(lambda x: x.id, (PARAM_H, PARAM_XF, PARAM_K, PARAM_M, PARAM_S, PARAM_CS, PARAM_PI, PARAM_KFWF)))
+        ]
+
     return [
         class_start.replace("d-flex", "d-none"),
         class_cdf_cont.replace("d-none", "d-flex"),
+        *[no_update] * 8
     ]
 
 
@@ -144,3 +163,26 @@ def on_all_params(
     return [
         fig
     ]
+
+
+@app.callback(
+    [
+        Output(GDIS_PARAMS, "data")
+    ],
+    [
+        Input(PROCESS_BUTTON, "n_clicks"),
+    ],
+    [
+        State(PARAM_CS, "value"),
+        State(PARAM_H, "value"),
+        State(PARAM_K, "value"),
+        State(PARAM_KFWF, "value"),
+        State(PARAM_M, "value"),
+        State(PARAM_PI, "value"),
+        State(PARAM_S, "value"),
+        State(PARAM_XF, "value"),
+    ],
+    prevent_initial_call=True,
+)
+def save_params(_, *params):
+    return [{k:v for k, v in zip(map(lambda x: x.id, (PARAM_CS, PARAM_H, PARAM_K, PARAM_KFWF, PARAM_M, PARAM_PI, PARAM_S, PARAM_XF)), params)}]

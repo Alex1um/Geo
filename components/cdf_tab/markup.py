@@ -2,10 +2,12 @@ from dash import dash_table
 from dash import dcc, html
 from dash_app import app
 import dash_bootstrap_components as dbc
+from components.memory import GDIS_PARAMS
 
 
 CDF_CONTENT = dbc.CardGroup(
     [
+        GDIS_PARAMS,
         dbc.Card(
             [
                 dbc.CardBody(
@@ -15,21 +17,21 @@ CDF_CONTENT = dbc.CardGroup(
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("xf"),
-                                        PARAM_XF := dbc.Input(type="number")
+                                        PARAM_XF := dbc.Input(type="number", id="param-xf")
                                     ],
                                     style={'width': "30%"},
                                 ),
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("m"),
-                                        PARAM_M := dbc.Input(type="number")
+                                        PARAM_M := dbc.Input(type="number", id="param-m")
                                     ],
                                     style={'width': "30%"},
                                 ),
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("h"),
-                                        PARAM_H := dbc.Input(type="number")
+                                        PARAM_H := dbc.Input(type="number", id="param-h")
                                     ],
                                     style={'width': "30%"},
                                 ),
@@ -40,21 +42,21 @@ CDF_CONTENT = dbc.CardGroup(
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("k"),
-                                        PARAM_K := dbc.Input(type="number")
+                                        PARAM_K := dbc.Input(type="number", id="param-k")
                                     ],
                                     style={'width': "30%"},
                                 ),
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("S"),
-                                        PARAM_S := dbc.Input(type="number")
+                                        PARAM_S := dbc.Input(type="number", id="param-s")
                                     ],
                                     style={'width': "30%"},
                                 ),
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("Cs"),
-                                        PARAM_CS := dbc.Input(type="number")
+                                        PARAM_CS := dbc.Input(type="number", id="param-cs")
                                     ],
                                     style={'width': "30%"},
                                 ),
@@ -65,7 +67,7 @@ CDF_CONTENT = dbc.CardGroup(
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("KfWf"),
-                                        PARAM_KFWF := dbc.Input(type="number")
+                                        PARAM_KFWF := dbc.Input(type="number", id="param-kfwf")
                                     ],
                                     className="g-col-1",
                                     style={'width': "30%"},
@@ -73,7 +75,7 @@ CDF_CONTENT = dbc.CardGroup(
                                 dbc.InputGroup(
                                     [
                                         dbc.InputGroupText("Pi"),
-                                        PARAM_PI := dbc.Input(type="number")
+                                        PARAM_PI := dbc.Input(type="number", id="param-pi")
                                     ],
                                     className="g-col-1",
                                     style={'width': "30%"},
